@@ -141,11 +141,11 @@ class HeterogeneousFraudGNN(nn.Module):
         self.num_classes = num_classes
         self.num_layers = num_layers
         self.dropout = dropout
-
+    
         # Capas de embedding iniciales para cada tipo de nodo
         self.node_embeddings = nn.ModuleDict()
-        for node_type in metadata[0]:  # metadata[0] contiene tipos de nodos
-            input_dim = NODE_DIMS_ADV.get(node_type, 64)
+        for node_type in metadata[0]:
+            input_dim = NODE_DIMS_ADV[node_type]
             self.node_embeddings[node_type] = nn.Linear(input_dim, hidden_dim)
 
         # Capas de convolución heterogéneas
