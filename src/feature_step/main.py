@@ -4,11 +4,13 @@ from typing import Dict, List
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta, date
+import logging
 
 from neo4j import GraphDatabase
 from neo4j.time import Date
 
 # 2. Define global variables
+logger = logging.getLogger(__name__)
 
 
 # 3. Functions/Classes
