@@ -1,9 +1,9 @@
 # 1. Import necessary libraries
 import logging
-from typing import Dict
+from typing import Dict, List
 import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta, date
-
 
 from neo4j import GraphDatabase
 from neo4j.time import Date
@@ -353,13 +353,13 @@ class Neo4jDataLoader:
         self, session, query: str, source_df: pd.DataFrame, target_df: pd.DataFrame
     ) -> List[List[int]]:
         """
-        Carga relaciones desde Neo4j usando una query específica
+        Loads relations from Neo4j using an specific query.
         """
 
         result = session.run(query)
         edges = []
 
-        # Crear mapeos de node_id a índice
+        # We create mappings from node_id to index
         source_map = {node_id: idx for idx, node_id in enumerate(source_df["node_id"])}
         target_map = {node_id: idx for idx, node_id in enumerate(target_df["node_id"])}
 
@@ -385,7 +385,7 @@ class Neo4jDataLoader:
         self, suministros: pd.DataFrame, comercializadoras: pd.DataFrame
     ) -> List[List[int]]:
         """
-        Creates relations SUMINISTRO -> COMERCIALIZADORA based on the code
+        Creates relations SUMINISTRO -> COMERCIALIZADORA based on the code.
         """
 
         edges = []
@@ -409,11 +409,11 @@ class Neo4jDataLoader:
         self, contadores: pd.DataFrame, ubicaciones: pd.DataFrame
     ) -> List[List[int]]:
         """
-        Crea relaciones de proximidad entre contadores
+        Creates relation of proximity between CONTADORES.
         """
 
         edges = []
-        # Simulamos proximidad: cada contador se conecta con 2-4 vecinos
+        # We simulate proximity: each CONTADOR connects with 2-4 neighbours
         for i in range(len(contadores)):
             num_neighbors = np.random.randint(2, 5)
             for _ in range(num_neighbors):
@@ -426,18 +426,21 @@ class Neo4jDataLoader:
     def _create_contador_similar_edges(
         self, contadores: pd.DataFrame
     ) -> List[List[int]]:
-        """Crea relaciones entre contadores similares (misma marca/modelo)"""
+        """
+        Creates relation between CONTADORES. The relation is based on similarity, same
+        MARCA/MODELO
+        """
 
         edges = []
 
-        # Agrupar por marca y modelo
+        # We group CONTADORES by MARCA and MODELO
         for marca in contadores["marca"].unique():
             for modelo in contadores["modelo"].unique():
                 subset_indices = contadores[
                     (contadores["marca"] == marca) & (contadores["modelo"] == modelo)
                 ].index.tolist()
 
-                # Conectar contadores del mismo tipo
+                # Create connection of same type of CONTADORES
                 for i in range(len(subset_indices)):
                     for j in range(i + 1, min(i + 4, len(subset_indices))):
                         edges.append([subset_indices[i], subset_indices[j]])
@@ -448,15 +451,17 @@ class Neo4jDataLoader:
     def _assign_fraud_labels_from_expedientes(
         self, contadores: pd.DataFrame, expedientes: pd.DataFrame, session
     ) -> pd.DataFrame:
-        """Asigna etiquetas de fraude basadas en expedientes reales"""
+        """
+        Function in charge of assigning fraud labels based on real EXPEDIENTES.
+        """
 
         contadores = contadores.copy()
 
-        # Inicializar todas las etiquetas como NORMAL
+        # Initialize all the labels as NORMAL, then we will be adding more labels
         contadores["label"] = "NORMAL"
 
         if not expedientes.empty:
-            # Obtener relaciones contador -> expediente
+            # Obtain relations CONTADOR -> EXPEDIENTE
             query = """
             MATCH (c:CONTADOR)-[:INVOLUCRADO_EN_FRAUDE]->(e:EXPEDIENTE_FRAUDE)
             RETURN c.nis_rad as contador_nis, e.clasificacion_fraude as clasificacion
@@ -465,10 +470,10 @@ class Neo4jDataLoader:
             result = session.run(query)
             fraud_relations = [dict(record) for record in result]
 
-            # Crear mapeo de NIS a índice
+            # Create the mapping of NIS into index
             nis_to_idx = {row["nis_rad"]: idx for idx, row in contadores.iterrows()}
 
-            # Asignar etiquetas basadas en clasificación de fraude
+            # Assign labels based on the fraud classification.
             fraud_count = 0
             irregularity_count = 0
 
@@ -491,36 +496,11 @@ class Neo4jDataLoader:
 
             normal_count = len(contadores) - fraud_count - irregularity_count
             print(
-                f"✅ Etiquetas desde BD: {normal_count} Normal, {fraud_count} Fraude, {irregularity_count} Irregularidad"
+                f"✅ Labels from DB: {normal_count} Normal, {fraud_count} Fraud, {irregularity_count} Irregular"
             )
-
         else:
-            # Si no hay expedientes, simular algunas etiquetas para prueba
-            print("⚠️ No se encontraron expedientes de fraude, simulando etiquetas...")
-            num_fraudes = max(1, int(len(contadores) * 0.05))  # 5% fraudes
-            num_irregularidades = max(
-                1, int(len(contadores) * 0.03)
-            )  # 3% irregularidades
-
-            fraud_indices = np.random.choice(
-                len(contadores), num_fraudes, replace=False
-            )
-            remaining_indices = [
-                i for i in range(len(contadores)) if i not in fraud_indices
-            ]
-            irregularity_indices = np.random.choice(
-                remaining_indices, num_irregularidades, replace=False
-            )
-
-            for idx in fraud_indices:
-                contadores.loc[idx, "label"] = "FRAUDE"
-
-            for idx in irregularity_indices:
-                contadores.loc[idx, "label"] = "IRREGULARIDAD"
-
-            normal_count = len(contadores) - num_fraudes - num_irregularidades
-            print(
-                f"✅ Etiquetas simuladas: {normal_count} Normal, {num_fraudes} Fraude, {num_irregularidades} Irregularidad"
+            logger.error(
+                "ERROR: We couldn't load any 'expedientes'. Check the database"
             )
 
         return contadores
