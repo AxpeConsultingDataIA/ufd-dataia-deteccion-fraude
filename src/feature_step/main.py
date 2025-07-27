@@ -3,37 +3,17 @@ import logging
 from typing import Dict, List
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta, date
 import logging
 
 from neo4j import GraphDatabase
-from neo4j.time import Date
+
+from functional_code import convert_neo4j_date
 
 # 2. Define global variables
 logger = logging.getLogger(__name__)
 
 
 # 3. Functions/Classes
-def convert_neo4j_date(x):
-    """
-    Aux function used to convert a neo4j date type column into a datetime type of column
-
-    Parameters:
-        - x: The desired date to modify.
-
-    Returns:
-        - x: The date with its new format.
-    """
-    if isinstance(x, Date):
-        return date(x.year, x.month, x.day)
-    elif isinstance(x, datetime):
-        return x.date()
-    elif isinstance(x, date):
-        return x
-    else:
-        return pd.NaT
-
-
 class Neo4jDataLoader:
     """
     Loads heterogeneous data from Neo4j.
