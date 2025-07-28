@@ -1,0 +1,15 @@
+# Dependencias principales para el proyecto UFD
+pyspark>=3.4.0
+neo4j>=5.14.0
+pandas>=1.5.0
+
+# Dependencias adicionales
+py4j>=0.10.9
+numpy>=1.21.0
+
+# Para logging y manejo de archivos
+pytz>=2022.1
+
+# Para desarrollo y testing (opcional)
+pytest>=7.0.0
+pytest-spark>=0.6.0
