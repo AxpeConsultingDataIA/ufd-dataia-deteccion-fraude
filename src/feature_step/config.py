@@ -643,10 +643,81 @@ GRID_CONTADORES_CONFIG = {
     ],  
     'todos_los_campos': [
         '_id', 'data_date', 'ct_sgc', 'ct_gmo', 'ct_bdi', 'ct_odi', 'nombre_ct_bdi', 'cnc_s05', 
-        'trafo_bdi', 'salida_bt_bdi', 'clave_acometida_sgc', 'clave_acometida_ficticia_sgc', 
-        'nif_sum_sgc', 'cups_sgc', 'nis_rad_sgc', 'nif_pm_sgc', 'cgv_pm_sgc', 'cnt_sgc', 
-        'marca_cnt_sgc', 'filepath', 'data_date_ing', 'op'
-        # Nota: Schema truncado para brevedad - en producción incluir todos los campos
+        'trafo_bdi', 'salida_bt_bdi',
+        'clave_acometida_sgc', 'clave_acometida_ficticia_sgc', 'nif_sum_sgc', 
+        'cups_sgc', 'nis_rad_sgc', 'nif_pm_sgc', 'cgv_pm_sgc', 'cnt_sgc', 'marca_cnt_sgc',
+        'mod_s06', 'codigo_barras_s06', 'fecha_ult_s06_s06', 'vprime_s06', 
+        'vf_s06', 'version_stg_s05', 'companion_s06',
+        'ultimo_domingo', 'fecha_ult_s05_s05', 'num_dias_uls_s05_s05', 
+        'num_dias_ult_s05_desde_domingo_s05', 'num_dias_ult_s05_o_inst_desde_domingo_s05',
+        'aea_s05', 'aia_s05', 'num_envios_s05',
+        'num_envios_s02_s02', 'fecha_ult_s02_s02', 'num_horas_s02_s02', 
+        'num_huecos_s02_s02', 'num_dias_ult_s02_s02', 'num_dias_ult_s02_desde_domingo_s02', 
+        'num_dias_ult_s02_o_inst_desde_domingo_s02',
+        'fecha_inst_apa_sgc', 'num_dias_inst_apa_sgc', 'inst_tg_sgc', 
+        'telegest_os_sgc', 'fr_sgc', 'primera_fr_zeus', 'aor_fin_pm_sgc', 'f_puesta_explotacion_sgc',
+        'tipo_punto_sgc', 'tipo_sum_sgc', 'estado_contrato_sgc', 'fases_sgc', 
+        'prop_apa_sgc', 'alquiler_distribuidora_zeus', 'pot_ctto_sgc', 'pot_max_sgc', 
+        'tension_sum_sgc', 'comercializadora_sgc', 'tarifa_sgc', 'alquiler_sgc',
+        'fecha_alta_ctto_sgc', 'fecha_baja_ctto_sgc', 'complemento_fact_sgc', 
+        'fecha_ult_lect_sgc', 'fecha_ult_fact_sgc', 'num_dias_ult_fact_sgc',
+        'contrata_tg_contratas', 'contrata_zona_contratas', 'area_ejecucion_sgc', 'centro_tecnico_sgc',
+        'coord_utm_x_bdi', 'coord_utm_y_bdi',
+        'meterid_1_sgc', 'meterid_2_sgc', 'meterid_3_sgc',
+        'tipo_apa1_sgc', 'marca1_sgc', 'num_apa1_sgc', 'mod1_sgc', 
+        'cod_barras1_sgc', 'subtipo_apa1_zeus',
+        'tipo_apa2_sgc', 'marca2_sgc', 'num_apa2_sgc', 'mod2_sgc', 
+        'cod_barras2_sgc', 'subtipo_apa2_zeus',
+        'tipo_apa3_sgc', 'marca3_sgc', 'num_apa3_sgc', 'mod3_sgc', 'cod_barras3_sgc',
+        'reactiva_zeus', 'maximetro_icp_zeus', 'cgv_sum_sgc',
+        'tipo_via_sgc', 'calle_sgc', 'numero_sgc', 'duplicador_sgc', 'cod_postal_sgc', 
+        'entidad_singular_sgc', 'entidad_colectiva_sgc', 'municipio_sgc', 'provincia_sgc', 'ccaa_sgc',
+        'trafos_en_ct', 'salidas_bt_en_ct', 'salidas_bt_en_trafo', 'acometidas_en_ct', 
+        'acometidas_en_trafo', 'acometidas_por_salida_bt', 'contadores_tg_en_ct', 
+        'contadores_tg_en_trafo', 'contadores_tg_en_salida_bt', 'contadores_tg_en_acometida',
+        'tasa_comunica_ct_s05', 'tasa_comunica_trafo_s05', 'tasa_comunica_salida_bt_s05', 
+        'tasa_comunica_acometida_s05', 'tasa_5_7_ct_s05', 'tasa_5_7_trafo_s05', 
+        'tasa_5_7_salida_bt_s05', 'tasa_5_7_acometida_s05',
+        'num_trafos_comunica_ko_por_ct', 'num_trafos_comunica_parcial_por_ct', 
+        'num_trafos_comunica_ok_por_ct', 'num_lineas_comunica_ko_por_trafo', 
+        'num_lineas_comunica_parcial_por_trafo', 'num_lineas_comunica_ok_por_trafo', 
+        'num_acometidas_comunica_ko_por_linea', 'num_acometidas_comunica_parcial_por_linea', 
+        'num_acometidas_comunica_ok_por_linea',
+        'ultimo_s05_distinto_0_odi', 'ultimo_s02_distinto_0_odi', 'estado_tg_gct',
+        'num_os_ult_inc_sgc', 'tipo_os_ult_inc_sgc', 'cer_ult_inc_sgc', 
+        'fuce_ult_inc_sgc', 'num_dias_os_ult_inc_sgc', 'accs_ult_inc_sgc', 'com_resolucion_ult_inc_zeus',
+        'num_os_ult_sgc', 'tipo_os_ult_sgc', 'cer_ult_sgc', 'fuce_ult_sgc', 
+        'num_dias_os_ult_sgc', 'accs_ult_sgc', 'com_resolucion_ult_zeus',
+        'num_os_ult_acom_zeus', 'tipo_os_ult_acom_zeus', 'cer_ult_acom_zeus', 
+        'fuce_ult_acom_zeus', 'num_dias_os_ult_acom_zeus', 'accs_ult_acom_zeus', 'com_resolucion_ult_acom_zeus',
+        'favoritos_edit', 'contrasenyas_edit', 'criticidad_edit',
+        'num_incidencia', 'estado_incidencia', 'fecha_estado_incidencia', 'sintoma_incidencia', 
+        'reglas_cumplidas', 'estado_incidencia_concentrador', 'num_dias_ult_cambio_inc_concentrador',
+        'afectado_por_incidencia_cargas', 'afectado_por_incidencia_concentrador', 
+        'afectado_por_incidencia_ruido', 'nivel_ruido', 'num_incidencia_ruido', 'afectado_por_incidencia_pvpc',
+        'g02_semanal', 't1_modelo_g17', 't1_version_fw_g17', 'afectado_por_estrategia',
+        '_0_mk_pkms_6b', '_1_lls_pkms_6b', '_2_ak_pkms_6b', '_4_uk_pkms_6b', 
+        '_5_factory_lls_pkms_6b', '_6_factory_mk_pkms_6b',
+        'creation_date_mk_pkms_6b', 'creation_date_lls_pkms_6b', 'creation_date_ak_pkms_6b', 
+        'creation_date_uk_pkms_6b', 'creation_date_factory_lls_pkms_6b', 'creation_date_factory_mk_pkms_6b',
+        'security_status_security', 'dc_changed_security', 'meter_dc_status_security', 
+        'activate_key_status_security', 'master_key_status_security', 'authenticate_key_status_security', 
+        'unicast_key_status_security', 'master_activation_key_security', 'global_activation_key_security',
+        'fecha_ultimo_s24', 'fecha_ultimo_acceso_s24', 'ultimo_estado_s24', 'active_s24',
+        'fecha_ultimo_s31', 's31_estado_cliente_dc', 's31_mascara_de_claves', 's31_cliente_id',
+        'fecha_ultimo_s32', 'origen', 'cnae',
+        'tarifa_activa_s23', 'tarifa_latente_s23', 'fecha_activacion_contrato_latente_s23', 
+        'tr1_s23', 'tr2_s23', 'tr3_s23', 'fecha_ultimo_s23_s23',
+        'ruta', 'fecha_ult_s19_s19', 'vf_s19', 'vprime_s19', 'vf_s06_s19', 'vprime_s06_s19', 
+        'fecha_activacion_contrato_activo_s23',
+        'lote_manual', 'lote_telegestionado',
+        'consumo_facturado_ultimo_anyo', 'consumo_facturado_el_penultimo_anyo', 'ultimo_consumo_facturado',
+        'estado_incidencia_ruido', 'filtros_plc_numero_zeus', 'filtros_plc_marca_mod_zeus', 'filtros_plc_fecha_1__inst_zeus', 
+        'filtros_plc_fecha_ult_inst_zeus', 'filtros_plc_iguales_zeus',
+        'hora_activacion_contrato_latente_s23', 'hora_activacion_contrato_activo_s23',
+        'tarifa_empleado', 'suministro_no_cortable', 'suministro_programable', 'pot_contratada_p1',
+        'max_s04', 'fx_s04', 'fecha_ult_s04_s04', 'fecha_fabricacion_s06', 'ciclos_estimados_zeus',
+        'cnt_gmo', 'cnt_online_gmo', 'filepath', 'data_date_ing', 'op'
     ]
 }
 
@@ -704,6 +775,35 @@ RELACIONES_CONFIG = [
             created_at: datetime(),
             tipo_relacion: 'por_nis'
         }]->(g)
+        """
+    },
+    {
+        "nombre": "RELACION_CURVA_HORARIA_EVENTO",
+        "descripcion": "Relaciona curvas horarias con eventos por CNC_ID y CNT_ID",
+        "query": """
+        MATCH (c:Curva_horaria), (e:Evento)
+        WHERE c.cnt_id IS NOT NULL AND e.cnt_id IS NOT NULL
+        AND c.cnc_id IS NOT NULL AND e.cnc_id IS NOT NULL
+        AND c.cnt_id = e.cnt_id AND c.cnc_id = e.cnc_id
+        CREATE (c)-[:GENERA_EVENTO {
+            created_at: datetime(),
+            tipo_relacion: 'cnt_id+cnc_id'
+        }]->(e)
+        """
+    },
+    {
+        "nombre": "RELACION_GRID_CURVA",
+        "descripcion": "Relaciona Grid de contadores con curvas horarias por CNT_ID y CNC_ID",
+        "query": """
+        MATCH (g:Grid_contadores), (c:Curva_horaria)
+        WHERE g.cnt_sgc IS NOT NULL AND c.cnt_id IS NOT NULL
+        AND g.cnc_s05 IS NOT NULL AND c.cnc_id IS NOT NULL
+        AND g.data_date IS NOT NULL AND c.data_date IS NOT NULL
+        AND g.cnt_sgc = c.cnt_id AND g.cnc_s05 = c.cnc_id AND g.data_date = c.data_date
+        CREATE (g)-[:RELACION_CURVA {
+            created_at: datetime(),
+            tipo_relacion: 'cnt+cnc+fecha'
+        }]->(c)
         """
     },
     {

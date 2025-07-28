@@ -179,7 +179,8 @@ def main():
                 logging.error(f"Tipos fallidos: {resultado_relaciones['fallidas']}")
             return 1
 
-    # CARGAR DATOS (modo normal)
+    
+    # CARGAR DATOS DESDE ARCHIVOS CSV
     logging.info("Cargando datos desde archivos CSV...")
     dfs = load_raw_training_data(data_config_updated)
     

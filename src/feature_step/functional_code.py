@@ -203,6 +203,8 @@ def borrar_toda_bd_neo4j(uri, usuario, password, confirmar=False, borrar_props=F
 
     return resultados
 
+from pyspark.sql.types import StringType, LongType
+from pyspark.sql.functions import col, to_date, to_timestamp, from_unixtime
 
 def load_raw_training_data(input_config=DATA_CONFIG):
     spark = SparkSession.builder.getOrCreate()
@@ -216,43 +218,51 @@ def load_raw_training_data(input_config=DATA_CONFIG):
                 schema=cfg["schema"],
                 encoding="utf-8"
             )
+
             logging.info(f"Tabla {name} cargada correctamente con {df.count()} filas y {len(df.columns)} columnas")
-            # Procesar columnas de fecha si están definidas
+
+            # Procesar columnas de fecha
             date_columns = cfg.get("date_columns", [])
             date_format = cfg.get("date_format", None)
+
             for date_col in date_columns:
                 if date_col in df.columns:
-                    # Detectar tipo de columna en el schema
-                    field_type = None
-                    for f in cfg["schema"].fields:
-                        if f.name == date_col:
-                            field_type = type(f.dataType)
-                            break
-                    # Si es LongType, convertir desde epoch
-                    if field_type and field_type.__name__ == "LongType":
-                        df = df.withColumn(date_col + "_ts", to_timestamp(from_unixtime(col(date_col))))
-                        logging.info(f"Columna {date_col} convertida a timestamp desde epoch en tabla {name}")
-                    # Si es StringType, usar formato si existe
-                    elif field_type and field_type.__name__ == "StringType":
-                        if date_format:
-                            if "H" in date_format or "m" in date_format or "s" in date_format:
-                                df = df.withColumn(date_col + "_ts", to_timestamp(col(date_col), date_format))
-                                logging.info(f"Columna {date_col} convertida a timestamp usando formato {date_format} en tabla {name}")
+                    # Buscar el tipo declarado en el schema
+                    schema_field = next((f for f in cfg["schema"].fields if f.name == date_col), None)
+                    if schema_field:
+                        field_type = type(schema_field.dataType).__name__
+
+                        # Si es LongType, convertir desde epoch a timestamp
+                        if field_type == "LongType":
+                            df = df.withColumn(date_col, to_timestamp(from_unixtime(col(date_col))))
+                            logging.info(f"Columna {date_col} convertida desde epoch a timestamp")
+
+                        # Si es StringType, convertir usando date_format
+                        elif field_type == "StringType":
+                            if date_format:
+                                if any(x in date_format for x in ["H", "m", "s"]):
+                                    df = df.withColumn(date_col, to_timestamp(col(date_col), date_format))
+                                    logging.info(f"Columna {date_col} convertida a timestamp con formato {date_format}")
+                                else:
+                                    df = df.withColumn(date_col, to_date(col(date_col), date_format))
+                                    logging.info(f"Columna {date_col} convertida a date con formato {date_format}")
                             else:
-                                df = df.withColumn(date_col + "_dt", to_date(col(date_col), date_format))
-                                logging.info(f"Columna {date_col} convertida a date usando formato {date_format} en tabla {name}")
-                        else:
-                            df = df.withColumn(date_col + "_dt", to_date(col(date_col)))
-                            logging.info(f"Columna {date_col} convertida a date usando formato por defecto en tabla {name}")
-                    # Si es TimestampType, no hace falta convertir
+                                df = df.withColumn(date_col, to_date(col(date_col)))
+                                logging.info(f"Columna {date_col} convertida a date con formato por defecto")
+
+            # Guardar en variable global
             globals()[f"df_{name}"] = df
             logging.info(f"Esquema de df_{name}:")
             df.printSchema()
+
         except Exception as e:
             logging.error(f"Error al cargar tabla {name}: {e}", exc_info=True)
 
-    return {f"df_{name}": globals()[f"df_{name}"] for name in input_config.keys() if f"df_{name}" in globals()}
-
+    return {
+        f"df_{name}": globals()[f"df_{name}"]
+        for name in input_config.keys()
+        if f"df_{name}" in globals()
+    }
 
 def procesar_tablas_neo4j(tablas_neo4j, dfs, neo4j_config):
     """
