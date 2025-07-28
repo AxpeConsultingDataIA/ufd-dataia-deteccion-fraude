@@ -10,8 +10,8 @@ from torch_geometric.nn import HeteroConv, GCNConv, SAGEConv, GATConv
 from torch_geometric.data import HeteroData
 import numpy as np
 import pandas as pd
-from sklearn.metrics import classification_report, roc_auc_score, f1_score
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import roc_auc_score, f1_score
+from sklearn.preprocessing import StandardScaler
 from datetime import datetime
 import logging
 import os
@@ -43,41 +43,41 @@ class HeterogeneousGraphProcessorSageMaker:
 
     def create_heterogeneous_graph(self, data):
         """
-        Convierte datos heterogéneos en un objeto HeteroData de PyTorch Geometric
+        Transforms heterogeneous data into a PyTorch Geometric HeteroData object
         """
 
         logger.info("🔄 Processing the heterogeneous graph from Neo4j...")
 
         hetero_data = HeteroData()
 
-        # Procesar cada tipo de nodo
+        # Process each node type
         for node_type, node_df in data["nodes"].items():
             if len(node_df) == 0:
-                logger.warning(f"   ⚠️ Saltando nodos tipo: {node_type} (vacío)")
+                logger.warning(f"   ⚠️ Skipping nodes: {node_type} (empty)")
                 continue
 
-            logger.info(f"   Procesando nodos tipo: {node_type}")
+            logger.info(f"   Processing nodes: {node_type}")
 
-            # Procesar características del nodo usando tu lógica
+            # Process features of the node
             x, feature_names = self._process_node_features(node_df, node_type)
             hetero_data[node_type].x = torch.tensor(x, dtype=torch.float)
 
-            # Guardar nombres de características para análisis posterior
+            # Save the name of the feature for future analysis
             hetero_data[node_type].feature_names = feature_names
 
-            # Para CONTADORES, agregar etiquetas de fraude
+            # For CONTADORES, add fraud labels
             if node_type == "contador" and "label" in node_df.columns:
                 labels = [FRAUD_CLASSES[label] for label in node_df["label"]]
                 hetero_data[node_type].y = torch.tensor(labels, dtype=torch.long)
 
-            logger.info(f"     ✅ {len(node_df)} nodos, {x.shape[1]} características")
+            logger.info(f"     ✅ {len(node_df)} nodes, {x.shape[1]} features")
 
-        # Procesar relaciones heterogéneas
+        # Process heterogeneous relations
         for edge_type, edge_list in data["edges"].items():
             if len(edge_list) > 0:
                 src_type, relation, dst_type = edge_type
 
-                # Verificar que ambos tipos de nodo existen
+                # Verify that both node types exist
                 if (
                     src_type in hetero_data.node_types
                     and dst_type in hetero_data.node_types
@@ -91,21 +91,21 @@ class HeterogeneousGraphProcessorSageMaker:
                     )
                 else:
                     logger.warning(
-                        f"   ⚠️ Saltando relación {relation}: tipos de nodo faltantes"
+                        f"   ⚠️ Skipping relation {relation}: type of nodes remaining"
                     )
 
         logger.info(
-            f"✅ Grafo heterogéneo creado con {len(data['nodes'])} tipos de nodos"
+            f"✅ Heterogeneous graph created with {len(data['nodes'])} type of nodes"
         )
 
         return hetero_data
 
     def _process_node_features(self, node_df, node_type):
         """
-        Procesar características de un tipo de nodo usando tu lógica original
+        Process features of a node type
         """
 
-        # Excluir columnas no-feature
+        # Exclude non-feature columns
         exclude_cols = [
             "node_id",
             "label",
@@ -122,21 +122,22 @@ class HeterogeneousGraphProcessorSageMaker:
         for col in feature_cols:
             try:
                 if node_df[col].dtype in ["object", "bool"]:
-                    # Variables categóricas
+                    # Categorical variables
                     if node_df[col].dtype == "bool":
-                        # Variables booleanas
+                        # Boolean variables
                         processed_features.append(
                             node_df[col].astype(int).values.reshape(-1, 1)
                         )
                         feature_names.append(f"{col}")
                     else:
-                        # Variables categóricas -> One-hot encoding
-                        # Limitar número de categorías para evitar dimensiones muy grandes
+                        # Categorical variables -> One-hot encoding
+                        # Limit the number of categories in order to avoid too big dimensions
                         unique_values = node_df[col].nunique()
                         if unique_values > 10:
-                            # Si hay muchas categorías, usar solo top-10
+                            # Only top10 in case we have more than 10 categories
                             top_categories = node_df[col].value_counts().head(10).index
                             node_df_temp = node_df[col].copy()
+                            # We set the remaining to "OTHER"
                             node_df_temp[~node_df_temp.isin(top_categories)] = "OTHER"
                             encoded = pd.get_dummies(node_df_temp, prefix=col)
                         else:
@@ -146,7 +147,6 @@ class HeterogeneousGraphProcessorSageMaker:
                         feature_names.extend(encoded.columns.tolist())
 
                 elif node_df[col].dtype in ["datetime64[ns]", "<M8[ns]"]:
-                    # Variables temporales -> características numéricas
                     try:
                         days_since = (
                             (datetime.now() - pd.to_datetime(node_df[col]))
@@ -156,43 +156,41 @@ class HeterogeneousGraphProcessorSageMaker:
                         processed_features.append(days_since)
                         feature_names.append(f"{col}_days_since")
                     except:
-                        # Si falla la conversión temporal, usar valor por defecto
+                        # If the temporal transformation fails, use values by default
                         default_values = np.zeros((len(node_df), 1))
                         processed_features.append(default_values)
                         feature_names.append(f"{col}_days_since")
 
                 else:
-                    # Características numéricas -> normalización estándar
+                    # Numerical features -> StandardScaler
                     scaler_key = f"{node_type}_{col}"
                     if scaler_key not in self.scalers:
                         self.scalers[scaler_key] = StandardScaler()
 
-                    # Convertir a numérico y manejar NaNs
+                    # Transform to numeric and deal with nulls (fillna to 0)
                     values = (
                         pd.to_numeric(node_df[col], errors="coerce")
                         .fillna(0)
                         .values.reshape(-1, 1)
                     )
 
-                    # Verificar si hay varianza en los datos
+                    # Verify if there is variance in the data. If there is no variance, we mantain original values
                     if np.std(values) > 0:
                         normalized = self.scalers[scaler_key].fit_transform(values)
                     else:
-                        normalized = (
-                            values  # Si no hay varianza, mantener valores originales
-                        )
+                        normalized = values
 
                     processed_features.append(normalized)
                     feature_names.append(f"{col}_normalized")
 
             except Exception as e:
-                logger.warning(f"   ⚠️ Error procesando columna {col}: {e}")
-                # Crear características por defecto en caso de error
+                logger.warning(f"   ⚠️ Error processing the column {col}: {e}")
+                # Create features by default in case of error
                 default_values = np.zeros((len(node_df), 1))
                 processed_features.append(default_values)
                 feature_names.append(f"{col}_default")
 
-        # Concatenar todas las características
+        # Concat all the features
         if processed_features:
             final_features = np.concatenate(processed_features, axis=1)
         else:
@@ -200,7 +198,7 @@ class HeterogeneousGraphProcessorSageMaker:
             feature_names = ["dummy_feature"]
 
         # Verificar dimensiones
-        logger.info(f"     Características finales: {final_features.shape}")
+        logger.info(f"     Final features: {final_features.shape}")
 
         return final_features, feature_names
 

@@ -488,54 +488,6 @@ if __name__ == "__main__":
 # src/train_step/model_fn_predict_fn.py
 # ===============================
 
-"""
-Documentación AWS
-"""
-
-# Este archivo contiene la documentación específica de AWS SageMaker
-# para las funciones model_fn y predict_fn
-
-"""
-DOCUMENTACIÓN AWS SAGEMAKER - FUNCIONES DE INFERENCIA
-
-1. model_fn(model_dir):
-   - Se ejecuta una vez cuando se inicia el contenedor de inferencia
-   - Debe cargar y retornar el modelo entrenado
-   - model_dir: directorio donde están los artefactos del modelo
-   
-2. input_fn(request_body, content_type):
-   - Procesa los datos de entrada antes de la predicción
-   - request_body: datos crudos de la petición
-   - content_type: tipo MIME de los datos
-   
-3. predict_fn(input_data, model):
-   - Realiza la predicción usando el modelo cargado
-   - input_data: datos procesados por input_fn
-   - model: modelo retornado por model_fn
-   
-4. output_fn(prediction, accept):
-   - Formatea la salida de la predicción
-   - prediction: resultado de predict_fn
-   - accept: tipo MIME esperado para la respuesta
-
-Para más información: https://docs.aws.amazon.com/sagemaker/
-"""
-
-# ===============================
-# src/train_step/requirements.txt
-# ===============================
-
-# torch>=1.12.0
-# torch-geometric>=2.1.0
-# torch-scatter>=2.0.9
-# torch-sparse>=0.6.15
-# torch-cluster>=1.6.0
-# torch-spline-conv>=1.2.1
-# scikit-learn>=1.1.0
-# pandas>=1.4.0
-# numpy>=1.21.0
-# sagemaker>=2.100.0
-# boto3>=1.24.0
 
 # ===============================
 # src/train_step/train_entrypoint.py
