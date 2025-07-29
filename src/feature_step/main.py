@@ -1,9 +1,10 @@
 import argparse
+from html import parser
 import logging
 import os
 from config import DATA_CONFIG, NEO4J_CONFIG, tablas_neo4j
 from functional_code import (
-    load_raw_training_data, 
+    load_raw_training_data_parquet,
     borrar_toda_bd_neo4j, 
     validar_neo4j_config, 
     procesar_tablas_neo4j,
@@ -31,8 +32,16 @@ def main():
     parser.add_argument("--limpiar-relaciones", action="store_true", help="Limpiar relaciones antes de crear")
     parser.add_argument("--relaciones-especificas", nargs="+", help="Crear solo relaciones específicas (por nombre)")
     parser.add_argument("--validar-nodos", action="store_true", help="Validar nodos antes de crear relaciones")
+
+    # Argumentos adicionales para rango de años
+    parser.add_argument("--anio-desde", type=int, help="Año inicial del rango de carga (ejemplo: 2021)")
+    parser.add_argument("--anio-hasta", type=int, help="Año final del rango de carga (ejemplo: 2023)")
     
     args = parser.parse_args()
+
+    # Validar argumentos de rango de años
+    if args.anio_desde and args.anio_hasta and args.anio_desde > args.anio_hasta:
+        raise ValueError("El año inicial (--anio-desde) no puede ser mayor que el año final (--anio-hasta)")
 
     # Configurar logging según argumento
     numeric_level = getattr(logging, args.loglevel.upper(), None)
@@ -84,13 +93,13 @@ def main():
         archivos_faltantes = []
         
         for nombre_tabla, cfg in DATA_CONFIG.items():
-            filename = os.path.basename(cfg["path"])
-            ruta_completa = os.path.join(args.input, filename)
-            
-            # Verificar que el archivo existe
+            ruta_relativa = cfg["path"]
+            ruta_completa = os.path.join(args.input, ruta_relativa)
+
+            # Si es una carpeta (como los parquet), validamos si existe esa carpeta
             if not os.path.exists(ruta_completa):
-                archivos_faltantes.append(filename)
-            
+                archivos_faltantes.append(ruta_relativa)
+
             # Crear nueva configuración con ruta actualizada
             cfg_actualizada = cfg.copy()
             cfg_actualizada["path"] = ruta_completa
@@ -98,12 +107,19 @@ def main():
         
         # Verificar archivos faltantes
         if archivos_faltantes:
-            logging.warning(f"Archivos faltantes: {archivos_faltantes}")
-            logging.info("Archivos disponibles en la carpeta:")
-            for archivo in os.listdir(args.input):
-                if archivo.endswith('.csv'):
-                    logging.info(f"  {archivo}")
-    
+            logging.warning(f"Archivos/carpetas faltantes: {archivos_faltantes}")
+            logging.info("Archivos y carpetas disponibles:")
+            for item in os.listdir(args.input):
+                item_path = os.path.join(args.input, item)
+                if os.path.isdir(item_path):
+                    logging.info(f"  {item}/ (carpeta)")
+                elif item.endswith('.parquet'):
+                    logging.info(f"  {item} (archivo parquet)")
+                elif item.endswith('.csv'):
+                    logging.info(f"  {item} (archivo csv)")
+                else:
+                    logging.info(f"  {item}")
+
     # Validar configuración de Neo4j antes de proceder
     if not validar_neo4j_config(NEO4J_CONFIG):
         logging.error("Configuración de Neo4j inválida. Revisa NEO4J_CONFIG en config.py")
@@ -180,9 +196,12 @@ def main():
             return 1
 
     
-    # CARGAR DATOS DESDE ARCHIVOS CSV
-    logging.info("Cargando datos desde archivos CSV...")
-    dfs = load_raw_training_data(data_config_updated)
+    # CARGAR DATOS DESDE ARCHIVOS PARQUET
+    logging.info("Cargando datos desde archivos PARQUET...")
+    dfs = load_raw_training_data_parquet(
+        data_config_updated,
+        anios=list(range(args.anio_desde, args.anio_hasta + 1)) if args.anio_desde and args.anio_hasta else None
+    )
     
     if not dfs:
         logging.error("No se pudieron cargar los DataFrames")

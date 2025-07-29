@@ -252,7 +252,10 @@ Este proyecto está bajo la Licencia MIT - ver archivo `LICENSE` para detalles.
 # Borrar BD + cargar datos + crear relaciones
 python main.py -i /ruta/datos --borrar-neo4j --crear-relaciones
 
-python main.py -i C:/Users/gmtorrealbac/Documents/AXPE_2025/UFD/src/feature_step/datasets -m "train" -l "DEBUG" --borrar-neo4j --crear-relaciones
+python main.py -i C:/Users/gmtorrealbac/Documents/AXPE_2025/UFD/GIT/ufd-dataia-deteccion-fraude/src/feature_step/datasets -m "train" -l "DEBUG" --borrar-neo4j --crear-relaciones --anio-desde 2024 --anio-hasta 2025
+
+C:\Users\gmtorrealbac\Documents\AXPE_2025\UFD\GIT\ufd-dataia-deteccion-fraude\src\feature_step\datasets
+
 
 # Con validaciones completas
 python main.py -i /ruta/datos --borrar-neo4j --crear-relaciones --validar-nodos -l DEBUG

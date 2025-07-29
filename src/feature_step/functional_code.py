@@ -1,12 +1,16 @@
 import logging
+import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import to_timestamp, to_date, col, from_unixtime
+from pyspark.sql.functions import to_timestamp, to_date, col, from_unixtime, year
 from config import DATA_CONFIG
 from neo4j import GraphDatabase
 import time
 from neo4j_manager import Neo4jTableManager
 from neo4j_relations_manager import Neo4jRelationsManager
 from config import RELACIONES_CONFIG, VALIDACIONES_RELACIONES
+from typing import Optional, List
+from pathlib import Path
+import glob
 
 # Configurar logging
 logging.basicConfig(
@@ -203,41 +207,85 @@ def borrar_toda_bd_neo4j(uri, usuario, password, confirmar=False, borrar_props=F
 
     return resultados
 
-from pyspark.sql.types import StringType, LongType
-from pyspark.sql.functions import col, to_date, to_timestamp, from_unixtime
+def load_raw_training_data_parquet(input_config, anios: Optional[List[int]] = None):
+    # Asegurar configuración de entorno para Spark en Windows
+    os.environ['HADOOP_HOME'] = 'C:\\hadoop'
+    os.environ['hadoop.home.dir'] = 'C:\\hadoop'
+    os.environ['PATH'] += os.pathsep + 'C:\\hadoop\\bin'
 
-def load_raw_training_data(input_config=DATA_CONFIG):
     spark = SparkSession.builder.getOrCreate()
+
     for name, cfg in input_config.items():
         try:
             logging.info(f"Cargando tabla: {name} desde {cfg['path']}")
-            df = spark.read.csv(
-                cfg["path"],
-                header=True,
-                sep=";",
-                schema=cfg["schema"],
-                encoding="utf-8"
-            )
+            path = Path(cfg["path"]).resolve()
+            schema = cfg["schema"]
+            partitioned = cfg.get("partitioned", False)
+            partition_cols = cfg.get("partition_cols", [])
+            date_columns = cfg.get("date_columns", [])
+            date_format = cfg.get("date_format", None)
+            filter_column = cfg.get("filter_column", None)
+
+            # Tabla particionada por año
+            if partitioned and anios and partition_cols:
+                # Usar la primera columna de partición como filtro principal (normalmente el año)
+                main_partition_col = partition_cols[0]
+                
+                all_paths = []
+                for a in anios:
+                    base_path = path / f"{main_partition_col}={a}"
+                    
+                    # Construir el patrón dinámicamente basado en las columnas de partición
+                    if len(partition_cols) == 1:
+                        # Solo una columna de partición
+                        if base_path.exists():
+                            all_paths.append(str(base_path))
+                    else:
+                        # Múltiples columnas de partición
+                        pattern_parts = []
+                        for i, part_col in enumerate(partition_cols[1:], 1):  # Comenzar desde la segunda columna
+                            pattern_parts.append(f"{part_col}=*")
+                        
+                        if pattern_parts:
+                            pattern = str(base_path / "/".join(pattern_parts))
+                            matching_dirs = glob.glob(pattern)
+                            all_paths.extend([str(p) for p in matching_dirs if os.path.isdir(p)])
+                        else:
+                            # Si no hay más columnas de partición después de la principal
+                            if base_path.exists():
+                                all_paths.append(str(base_path))
+
+                if not all_paths:
+                    logging.warning(f"No se encontraron particiones para {name} en los años {anios}")
+                    continue
+
+                logging.info(f"Particiones encontradas para {name}: {all_paths}")
+                df = spark.read.option("basePath", str(path)).parquet(*all_paths)
+
+            else:
+                # Tabla no particionada o sin filtro por años
+                if not path.exists():
+                    logging.warning(f"No se encontró el archivo/parquet en {path}")
+                    continue
+
+                if isinstance(path, Path):
+                    path = str(path)
+
+                path = os.path.normpath(path)   
+                logging.info(f"Ruta para {name}: {path}")
+                df = spark.read.parquet(str(path))
 
             logging.info(f"Tabla {name} cargada correctamente con {df.count()} filas y {len(df.columns)} columnas")
 
             # Procesar columnas de fecha
-            date_columns = cfg.get("date_columns", [])
-            date_format = cfg.get("date_format", None)
-
             for date_col in date_columns:
                 if date_col in df.columns:
-                    # Buscar el tipo declarado en el schema
-                    schema_field = next((f for f in cfg["schema"].fields if f.name == date_col), None)
+                    schema_field = next((f for f in schema.fields if f.name == date_col), None)
                     if schema_field:
                         field_type = type(schema_field.dataType).__name__
-
-                        # Si es LongType, convertir desde epoch a timestamp
                         if field_type == "LongType":
                             df = df.withColumn(date_col, to_timestamp(from_unixtime(col(date_col))))
                             logging.info(f"Columna {date_col} convertida desde epoch a timestamp")
-
-                        # Si es StringType, convertir usando date_format
                         elif field_type == "StringType":
                             if date_format:
                                 if any(x in date_format for x in ["H", "m", "s"]):
@@ -250,10 +298,28 @@ def load_raw_training_data(input_config=DATA_CONFIG):
                                 df = df.withColumn(date_col, to_date(col(date_col)))
                                 logging.info(f"Columna {date_col} convertida a date con formato por defecto")
 
-            # Guardar en variable global
+            # Filtrado por columna si se especifican años y existe filter_column
+            if anios and filter_column and filter_column in df.columns:
+                df = df.filter(col(filter_column).isNotNull())
+                
+                # Si filter_column es una columna de partición tipo string, usar directamente
+                if partitioned and filter_column in partition_cols:
+                    df = df.filter(col(filter_column).isin([str(a) for a in anios]))
+                else:
+                    # Para columnas de fecha u otros tipos, extraer el año
+                    schema_field = next((f for f in schema.fields if f.name == filter_column), None)
+                    if schema_field:
+                        field_type = type(schema_field.dataType).__name__
+                        if field_type in ["TimestampType", "DateType"]:
+                            df = df.filter(year(col(filter_column)).isin(anios))
+                        elif field_type == "StringType":
+                            # Asumir que el año está al inicio del string
+                            df = df.filter(col(filter_column).cast("string").substr(1, 4).isin([str(a) for a in anios]))
+                        else:
+                            # Para otros tipos, intentar conversión a string y extraer año
+                            df = df.filter(col(filter_column).cast("string").substr(1, 4).isin([str(a) for a in anios]))
+
             globals()[f"df_{name}"] = df
-            logging.info(f"Esquema de df_{name}:")
-            df.printSchema()
 
         except Exception as e:
             logging.error(f"Error al cargar tabla {name}: {e}", exc_info=True)

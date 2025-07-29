@@ -10,7 +10,11 @@ NEO4J_CONFIG = {
 # Configuración flexible de tablas
 DATA_CONFIG = {
     "eventos": {
-        "path": "s09.csv",
+        "path": "eventos/",
+        "format": "parquet",
+        "partitioned": True,
+        "partition_cols": ["partition_0", "partition_1", "partition_2"],
+        "filter_column": "partition_0",
         "schema": StructType([
             StructField("data_date", TimestampType(), True),
             StructField("idrpt", StringType(), True),
@@ -33,7 +37,11 @@ DATA_CONFIG = {
         "date_columns": []
     },
     "curva_horaria": {
-        "path": "s02.csv",
+        "path": "curva_horaria/",
+        "format": "parquet",
+        "partitioned": True,
+        "partition_cols": ["partition_0", "partition_1", "partition_2"],
+        "filter_column": "partition_0",
         "schema": StructType([
             StructField("data_date", TimestampType(), True),
             StructField("idrpt", StringType(), True),
@@ -61,7 +69,11 @@ DATA_CONFIG = {
         "date_columns": []
     },
     "inspecciones": {
-        "path": "ooss01.csv",
+        "path": "inspecciones/",
+        "format": "parquet",
+        "partitioned": True,
+        "partition_cols": ["partition_0", "partition_1", "partition_2"],
+        "filter_column": "partition_0",
         "schema": StructType([
             StructField("csv_file", StringType(), True),
             StructField("data_date", StringType(), True),
@@ -249,7 +261,10 @@ DATA_CONFIG = {
         "date_format": "dd/MM/yyyy"
     },
     "grid_contadores": {
-        "path": "grid_contadores.csv",
+        "path": "grid_contadores/",
+        "format": "parquet",
+        "partitioned": False,
+        "filter_column": "data_date",
         "schema": StructType([
             StructField("_id", LongType(), True),
             StructField("data_date", StringType(), True),
@@ -506,7 +521,10 @@ DATA_CONFIG = {
         "date_format": "dd/MM/yyyy H:mm"
     },
     "denuncias": {
-        "path": "denuncias.csv",
+        "path": "denuncias/",
+        "format": "parquet",
+        "partitioned": False,
+        "filter_column": "data_date",
         "schema": StructType([
             StructField("n__denuncia", StringType(), True),
             StructField("cups", StringType(), True),
@@ -520,7 +538,10 @@ DATA_CONFIG = {
         "date_format": "dd/MM/yyyy"
     },
     "expedientes": {
-        "path": "expedientes.csv",
+        "path": "expedientes/",
+        "format": "parquet",
+        "partitioned": False,
+        "filter_column": "data_date",
         "schema": StructType([
             StructField("n__informe", StringType(), True),
             StructField("dg", IntegerType(), True),
@@ -559,15 +580,20 @@ DATA_CONFIG = {
         "date_format": "dd/MM/yyyy"
     },
     "grupo_eventos_codigos": {
-        "path": "grupo_eventos_codigos.csv",
+        "path": "grupo_eventos_codigos/",
+        "format": "parquet",
+        "partitioned": False,
+        "filter_column": "data_date",
         "schema": StructType([
+            StructField("data_date", StringType(), True),
             StructField("grupo", StringType(), True),
             StructField("subgrupo", StringType(), True),
             StructField("descripcion", StringType(), True),
             StructField("numero", StringType(), True),
             StructField("desc_evento", StringType(), True)
         ]),
-        "date_columns": []
+        "date_columns": ["data_date"],
+        "date_format": "dd/MM/yyyy"
     }
 }
 
@@ -750,10 +776,10 @@ EXPEDIENTES_CONFIG = {
 # Configuración para Grupos códigos eventos
 GRUPO_EVENTOS_CODIGOS_CONFIG = {
     'nodo_label': 'Grupo_eventos_codigos',
-    'campos_constraint': ['grupo', 'subgrupo', 'numero'],
-    'campos_indices': ['grupo', 'subgrupo', 'descripcion', 'numero'],
+    'campos_constraint': ['data_date', 'grupo', 'subgrupo', 'numero'],
+    'campos_indices': ['data_date', 'grupo', 'subgrupo', 'descripcion', 'numero'],
     'todos_los_campos': [
-        'grupo', 'subgrupo', 'descripcion', 'numero', 'desc_evento'
+        'data_date', 'grupo', 'subgrupo', 'descripcion', 'numero', 'desc_evento'
     ]
 }
 

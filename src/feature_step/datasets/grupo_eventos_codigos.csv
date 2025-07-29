@@ -1,169 +1,169 @@
-﻿grupo;subgrupo;descripcion;numero;desc_evento
-1, 2, 3, 4, 5 y 6;0;Reset de evento;255;Indica que el evento ha sido limpiado
-1;10;Arranques y Fallos Alimentación;1;Arranque registrador con perdida de datos
-1;10;Arranques y Fallos Alimentación;2;Arranque registrador sin perdida de datos
-1;10;Arranques y Fallos Alimentación;3;Fallo alimentación registrador (apagado)
-1;10;Arranques y Fallos Alimentación;4;Fallo tensión de medida fase 1
-1;10;Arranques y Fallos Alimentación;5;Fallo tensión de medida fase 2
-1;10;Arranques y Fallos Alimentación;6;Fallo tensión de medida fase 3
-1;10;Arranques y Fallos Alimentación;7;Pérdida de neutro
-1;10;Arranques y Fallos Alimentación;8;Batería baja
-1;10;Errores Internos críticos de fabricante;9;Error interno crítico 
-1;10;Otros errores fabricante;oct-20;otros errores
-1;10;;21;Fin Fallo tensión Fase 1
-1;10;;22;Fin Fallo tensión Fase 2
-1;10;;23;Fin Fallo tensión Fase 3
-1;10;;24;Cambio oficial hora: Invierno --> Verano
-1;10;;25;Cambio oficial hora: Verano --> Invierno
-1;10;Reserva para usos futuros;26-29;Reservado
-1;10;Cambio de Parámetros;30;Cambio parámetros registrador (parámetros no incluidos en otros eventos de cambio de parámetros)
-1;10;Cambio de Parámetros;31;Cambio configuración puertos comunicaciones
-1;10;Cambio de Parámetros;32;Cambio Clave Consulta/Lectura
-1;10;Cambio de Parámetros;33;Cambio Clave Parametrización
-1;10;Cambio de Parámetros;34;Cambio Clave Firmware
-1;10;Cambio de Parámetros;35;Realizado Reset de Batería
-1;10;Cambio de Parámetros;36;Cambio de Cambio Automático I/V
-1;10;Cambio de Parámetros;37;Cambio Tiempo Mínimo entre Cierres
-1;10;Cambio de Parámetros;38;Cambio Periodo Integración Curvas de Carga
-1;10;Cambio de Parámetros;39;Cambio Relación Transformación (solo para MI)
-1;10;Cambio de Parámetros;40;Cambio Tipo Sincronismo Reloj
-1;10;Cambio de Parámetros;41;Cambio Etiqueta Programación
-1;10;Cambio de Parámetros;42;Cambio Estado Activación Cierres por Pulsador
-1;10;Cambio de Parámetros;43;Cambio Asignación de Salidas
-1;10;Contrato 1;44;Cierre Contrato 1 por comando 
-1;10;Contrato 1;45;Cambio parámetros Contrato 1
-1;10;Contrato 1;46;Reserva uso futuro
-1;10;Contrato 1;47;Cambio Tabla Días Especiales Contrato 1 latente
-1;10;Contrato 1;48;Cambio Tabla Temporadas Contrato 1 latente
-1;10;Contrato 1;49;Borrada Programación Contrato 1 latente
-1;10;Contrato 1;50;Cambio Cierres Automáticos Contrato 1 latente
-1;10;Contrato 1;51;Cambio Fecha Activación Contrato 1 latente
-1;10;Contrato 2;52;Cierre Contrato 2 por comando
-1;10;Contrato 2;53;Cambio parámetros Contrato 2
-1;10;Contrato 2;54;Cambio Tabla Días Especiales Contrato 2 latente
-1;10;Contrato 2;55;Cambio Tabla Temporadas Contrato 2 latente
-1;10;Contrato 2;56;Borrada Programación Contrato 2 latente
-1;10;Contrato 2;57;Cambio Cierres Automáticos Contrato 2 latente
-1;10;Contrato 2;58;Cambio Fecha Activación Contrato 2 latente
-1;10;Contrato 3;59;Cierre Contrato 3 por comando
-1;10;Contrato 3;60;Cambio parámetros Contrato 3
-1;10;Contrato 3;61;Cambio Tabla Días Especiales Contrato 3 latente
-1;10;Contrato 3;62;Cambio Tabla Temporadas Contrato 3 latente
-1;10;Contrato 3;63;Borrada Programación Contrato 3 latente
-1;10;Contrato 3;64;Cambio Cierres Automáticos Contrato 3 latente
-1;10;Contrato 3;65;Cambio Fecha Activación Contrato 3 latente
-1;10;Contrato 1, 2 y 3;66;Cierre manual (por pulsador)
-1;10;Reserva para usos futuros;67-89;Reservado
-1;10;cambio de parámetros de calidad de suministro;90;Cambio de tiempo para variación de tensión (T)
-1;10;cambio de parámetros de calidad de suministro;91;Cambio de tiempo de interrupción larga (T')
-1;10;cambio de parámetros de calidad de suministro;92;Cambio de Tensión Referencia (V)
-1;10;cambio de parámetros de calidad de suministro;93;Cambio de Consigna superior de tensión (+V)
-1;10;cambio de parámetros de calidad de suministro;94;Cambio de Consigna inferior de tensión (-V)
-1;10;cambio de parámetros de calidad de suministro;95;Cambio del umbral para estado de falta de tensión.
-1;11;Potencias Contratadas;96;Activación/Cambio de Potencias Contratadas para la Gestion de la Potencia demandada en IMPORTACIÓN-Contrato 1 (valores anteriores y nuevos)
-1;11;Potencias Contratadas;102;Activación/Cambio de Potencias Contratadas para la Gestion de la Potencia demandada en EXPORTACIÓN - Contrato 3 (valores anteriores y nuevos)
-1;12;Firmware;97;Cambio de Firmware (versión anterior + version nueva)
-1;13;Sincronización;98;Cambio hora registrador. (hora anterior y hora nueva)
-1;10;Reset Parametrización;99;Reset de claves
-1;10;Reset Parametrización;100;Reset de datos
-1;10;Reset Parametrización;101;Reset de Parametros
-1;10,11,12,13;Reserva para usos futuros;103-255;Reservado
-2;20;Control elemento corte;1;Conexión manual (botón)
-2;20;Control elemento corte;2;Desconexión remota (comando)
-2;20;Control elemento corte;3;Conexión remota (comando)
-2;20;Control elemento corte;4;Desconexión por control de potencia contratada Contrato 1
-2;20;Control elemento corte;13;Desconexión por control de potencia contratada Contrato 3
-2;20;Control elemento corte;5;Conexión control de potencia (IGA)
-2;20;Control elemento corte;6;Inicio Bloqueo elemento por superación PSC (valido para importación y exportación)
-2;20;Control elemento corte;7;Habilitación del elemento
-2;20;Control elemento corte;8;Deshabilitación del elemento
-2;20;Control elemento corte;9;Desconexión por control de potencia residual
-2;20;Control elemento corte;10;Conexión por desactivación potencia residual
-2;20;Control elemento corte;11;Conexión por control de potencia residual 
-2;20;Control elemento corte;12;Cambio de modo de control del elemento de corte
-2;20;Control elemento corte;14;Fin Bloqueo elemento por superación PSC (válido para importación y exportación)
-2;20;Reserva para usos futuros;15-255;
-3;31;Calidad.;1;VALOR MEDIO de las TENSIONES ENTRE FASES BAJO LIMITE INFERIOR:
-3;31;Incidencias ABIERTAS;2;TENSIÓN FASE 1 BAJO LIMITE INFERIOR
-3;31;;3;TENSIÓN FASE 2 BAJO LIMITE INFERIOR
-3;31;;4;TENSIÓN FASE 3 BAJO LIMITE INFERIOR
-3;31;;5;VALOR MEDIO de las TENSIONES ENTRE FASES SOBRE LIMITE SUPERIOR:
-3;31;;6;TENSIÓN FASE 1 SOBRE LIMITE SUPERIOR
-3;31;;7;TENSIÓN FASE 2 SOBRE LIMITE SUPERIOR
-3;31;;8;TENSIÓN FASE 3 SOBRE LIMITE SUPERIOR:
-3;31;;9;CORTE DE LARGA DURACIÓN EN TODAS LAS FASES
-3;31;;10;CORTE DE LARGA DURACIÓN EN LA FASE1
-3;31;;11;CORTE DE LARGA DURACIÓN EN LA FASE2
-3;31;;12;CORTE DE LARGA DURACIÓN EN LA FASE3
-3;31;;25;FALTA ALTA IMPEDANCIA (Supervisor BT)
-3;32;Calidad.;13;VALOR MEDIO de las TENSIONES ENTRE FASES BAJO LIMITE INFERIOR:
-3;32;Incidencias CERRADAS;14;TENSIÓN FASE 1 BAJO LIMITE INFERIOR
-3;32;;15;TENSIÓN FASE 2 BAJO LIMITE INFERIOR
-3;32;;16;TENSIÓN FASE 3 BAJO LIMITE INFERIOR
-3;32;;17;VALOR MEDIO de las TENSIONES ENTRE FASES SOBRE LIMITE SUPERIOR:
-3;32;;18;TENSIÓN FASE 1 SOBRE LIMITE SUPERIOR 
-3;32;;19;TENSIÓN FASE 2 SOBRE LIMITE SUPERIOR
-3;32;;20;TENSIÓN FASE 3 SOBRE LIMITE SUPERIOR
-3;32;;21;CORTE DE LARGA DURACIÓN EN TODAS LAS FASES
-3;32;;22;CORTE DE LARGA DURACIÓN EN LA FASE1
-3;32;;23;CORTE DE LARGA DURACIÓN EN LA FASE2
-3;32;;24;CORTE DE LARGA DURACIÓN EN LA FASE3
-3;32;;26;FIN DE FALTA DE  ALTA IMPEDANCIA (Supervisor BT)
-3;32;Reserva para usos futuros;27-255;
-4;40;Fraude;1;APERTURA DE LA ENVOLVENTE PRECINTO FABRICANTE
-4;40;Fraude;2;CIERRE DE LA ENVOLVENTE PRECINTO FABRICANTE
-4;40;Fraude;3;APARICIÓN DE UN CAMPO MAGNÉTICO SUPERIOR A NORMA (NO APLICA)
-4;40;Fraude;4;DESAPARICIÓN DE UN CAMPO MAGNÉTICO (NO APLICA)
-4;40;Fraude;5;PRESENCIA INTENSIDAD ANTE AUSENCIA DE TENSIÓN
-4;40;Fraude;6;INTENTO ACCESO CON CLAVE ERRÓNEA (INTRUSIÓN)
-4;40;Fraude;7;APERTURA DE LA TAPA CUBRE BORNAS / CUBRE HILOS
-4;40;Fraude;8;CIERRE DE LA TAPA CUBRE BORNAS / CUBRE HILOS
-4;40;Fraude;9;INICIO DETECCIÓN TENSIÓN EN BORNES SALIDA ANTE APERTURA E.CORTE POR COMANDO
-4;40;Fraude;10;FIN DETECCIÓN TENSIÓN EN BORNES SALIDA ANTE APERTURA E.CORTE POR COMANDO
-4;40;Fraude;11;INICIO DETECCIÓN IMPEDANCIA INFINITA EN BORNES SALIDA ANTE APERTURA E.CORTE POR COMANDO
-4;40;Fraude;12;FIN DETECCIÓN IMPEDANCIA INFINITA EN BORNES SALIDA ANTE APERTURA E.CORTE POR COMANDO
-4;40;Fraude;13;INICIO PUENTEO CONTADOR (OPCIONAL)
-4;40;Fraude;14;FIN PUENTEO CONTADOR (OPCIONAL)
-4;40;Reserva para usos futuros;13-255;
-5;50;Gestión de la demanda;1;Recepción orden gestión de la demanda potencia residual crítica
-5;50;Gestión de la demanda;2;Recepción orden gestión de la demanda reducción % potencia crítica
-5;50;Gestión de la demanda;3;Recepción orden gestión de la demanda valor absoluto de potencia crítica
-5;50;Gestión de la demanda;4;Recepción orden gestión de la demanda potencia residual no critica
-5;50;Gestión de la demanda;5;Aceptación gestión de la demanda por cliente potencia residual no critica
-5;50;Gestión de la demanda;6;Rechazo gestión de la demanda por cliente potencia residual no critica
-5;50;Gestión de la demanda;7;Recepción orden gestión de la demanda reducción % potencia no critica
-5;50;Gestión de la demanda;8;Aceptación gestión de la demanda por cliente reducción % potencia no critica
-5;50;Gestión de la demanda;9;Rechazo gestión de la demanda por cliente reducción % potencia no critica
-5;50;Gestión de la demanda;10;Recepción orden gestión de la demanda potencia valor absoluto no critica
-5;50;Gestión de la demanda;11;Aceptación gestión de la demanda por cliente potencia absoluto no critica
-5;50;Gestión de la demanda;12;Rechazo gestión de la demanda por cliente potencia absoluto no critica
-5;50;Gestión de la demanda;13;Cambio valor programación potencia residual contratada. Valor previo y actual
-5;50;Gestión de la demanda;14;Activación/Inicio potencia residual. Valor previo y actual.
-5;50;Gestión de la demanda;15;Fin potencia residual
-5;50;Gestión de la demanda;16;Activación/Inicio reducción % potencia contratada
-5;50;Gestión de la demanda;17;Fin reducción % potencia contratada
-5;50;Gestión de la demanda;18;Activación/Inicio reducción potencia absoluta
-5;50;Gestión de la demanda;19;Fin reducción potencia absoluta
-5;50;Gestión de la demanda;20;Potencia demanda cercana a la potencia contratada (%)
-5;50;Reserva para usos futuros;21-255;
-6;60;Alta ocurrencia - Comunes;1;Inicio establecimiento de comunicacones puerto PLC
-6;60;Alta ocurrencia - Comunes;2;Fin de comunicacones puerto PLC
-6;60;Alta ocurrencia - Comunes;3;Inico establecimiento de comunicacones puerto óptico 
-6;60;Alta ocurrencia - Comunes;4;Fin de comunicacones puerto óptico
-6;60;Alta ocurrencia - Comunes;5;Inicio establecimiento de comunicacones puerto serie
-6;60;Alta ocurrencia - Comunes;6;Fin de comunicacones puerto serie
-6;60;Reserva para usos futuros;7-255;
-7;71;Operaciones de seguridad correctas;1;Key Reset
-7;71;Operaciones de seguridad correctas;2;Cambio Master key
-7;71;Operaciones de seguridad correctas;3;Cambio Global Unicast Encryption Key
-7;71;Operaciones de seguridad correctas;4;Cambio Authentication Key
-7;71;Operaciones de seguridad correctas;5;Cambio password LLS del cliente seguro PLC
-7;71;Operaciones de seguridad correctas;6;Cambio Security policy  (Value = 3)
-7;72;Errores en operaciones de seguridad ;7;Error cambio Master key
-7;72;Errores en operaciones de seguridad ;8;Error cambio Global Unicast Encryption Key
-7;72;Errores en operaciones de seguridad ;9;Error cambio Authentication Key
-7;72;Errores en operaciones de seguridad ;10;Error en el establecimiento de la asociación con clave dedicada
-7;72;Errores en operaciones de seguridad ;11;Error en el cifrado y autenticación de los mensajes
-7;72;Errores en operaciones de seguridad ;12;Error en el password LLS
-7;72;Errores en operaciones de seguridad ;13;Error en el cambio de Security policy
-7;72;Errores en operaciones de seguridad ;14-255;
+﻿data_date;grupo;subgrupo;descripcion;numero;desc_evento
+25/08/2025;1, 2, 3, 4, 5 y 6;0;Reset de evento;255;Indica que el evento ha sido limpiado
+25/08/2025;1;10;Arranques y Fallos Alimentación;1;Arranque registrador con perdida de datos
+25/08/2025;1;10;Arranques y Fallos Alimentación;2;Arranque registrador sin perdida de datos
+25/08/2025;1;10;Arranques y Fallos Alimentación;3;Fallo alimentación registrador (apagado)
+25/08/2025;1;10;Arranques y Fallos Alimentación;4;Fallo tensión de medida fase 1
+25/08/2025;1;10;Arranques y Fallos Alimentación;5;Fallo tensión de medida fase 2
+25/08/2025;1;10;Arranques y Fallos Alimentación;6;Fallo tensión de medida fase 3
+25/08/2025;1;10;Arranques y Fallos Alimentación;7;Pérdida de neutro
+25/08/2025;1;10;Arranques y Fallos Alimentación;8;Batería baja
+25/08/2025;1;10;Errores Internos críticos de fabricante;9;Error interno crítico 
+25/08/2025;1;10;Otros errores fabricante;oct-20;otros errores
+25/08/2025;1;10;;21;Fin Fallo tensión Fase 1
+25/08/2025;1;10;;22;Fin Fallo tensión Fase 2
+25/08/2025;1;10;;23;Fin Fallo tensión Fase 3
+25/08/2025;1;10;;24;Cambio oficial hora: Invierno --> Verano
+25/08/2025;1;10;;25;Cambio oficial hora: Verano --> Invierno
+25/08/2025;1;10;Reserva para usos futuros;26-29;Reservado
+25/08/2025;1;10;Cambio de Parámetros;30;Cambio parámetros registrador (parámetros no incluidos en otros eventos de cambio de parámetros)
+25/08/2025;1;10;Cambio de Parámetros;31;Cambio configuración puertos comunicaciones
+25/08/2025;1;10;Cambio de Parámetros;32;Cambio Clave Consulta/Lectura
+25/08/2025;1;10;Cambio de Parámetros;33;Cambio Clave Parametrización
+25/08/2025;1;10;Cambio de Parámetros;34;Cambio Clave Firmware
+25/08/2025;1;10;Cambio de Parámetros;35;Realizado Reset de Batería
+25/08/2025;1;10;Cambio de Parámetros;36;Cambio de Cambio Automático I/V
+25/08/2025;1;10;Cambio de Parámetros;37;Cambio Tiempo Mínimo entre Cierres
+25/08/2025;1;10;Cambio de Parámetros;38;Cambio Periodo Integración Curvas de Carga
+25/08/2025;1;10;Cambio de Parámetros;39;Cambio Relación Transformación (solo para MI)
+25/08/2025;1;10;Cambio de Parámetros;40;Cambio Tipo Sincronismo Reloj
+25/08/2025;1;10;Cambio de Parámetros;41;Cambio Etiqueta Programación
+25/08/2025;1;10;Cambio de Parámetros;42;Cambio Estado Activación Cierres por Pulsador
+25/08/2025;1;10;Cambio de Parámetros;43;Cambio Asignación de Salidas
+25/08/2025;1;10;Contrato 1;44;Cierre Contrato 1 por comando 
+25/08/2025;1;10;Contrato 1;45;Cambio parámetros Contrato 1
+25/08/2025;1;10;Contrato 1;46;Reserva uso futuro
+25/08/2025;1;10;Contrato 1;47;Cambio Tabla Días Especiales Contrato 1 latente
+25/08/2025;1;10;Contrato 1;48;Cambio Tabla Temporadas Contrato 1 latente
+25/08/2025;1;10;Contrato 1;49;Borrada Programación Contrato 1 latente
+25/08/2025;1;10;Contrato 1;50;Cambio Cierres Automáticos Contrato 1 latente
+25/08/2025;1;10;Contrato 1;51;Cambio Fecha Activación Contrato 1 latente
+25/08/2025;1;10;Contrato 2;52;Cierre Contrato 2 por comando
+25/08/2025;1;10;Contrato 2;53;Cambio parámetros Contrato 2
+25/08/2025;1;10;Contrato 2;54;Cambio Tabla Días Especiales Contrato 2 latente
+25/08/2025;1;10;Contrato 2;55;Cambio Tabla Temporadas Contrato 2 latente
+25/08/2025;1;10;Contrato 2;56;Borrada Programación Contrato 2 latente
+25/08/2025;1;10;Contrato 2;57;Cambio Cierres Automáticos Contrato 2 latente
+25/08/2025;1;10;Contrato 2;58;Cambio Fecha Activación Contrato 2 latente
+25/08/2025;1;10;Contrato 3;59;Cierre Contrato 3 por comando
+25/08/2025;1;10;Contrato 3;60;Cambio parámetros Contrato 3
+25/08/2025;1;10;Contrato 3;61;Cambio Tabla Días Especiales Contrato 3 latente
+25/08/2025;1;10;Contrato 3;62;Cambio Tabla Temporadas Contrato 3 latente
+25/08/2025;1;10;Contrato 3;63;Borrada Programación Contrato 3 latente
+25/08/2025;1;10;Contrato 3;64;Cambio Cierres Automáticos Contrato 3 latente
+25/08/2025;1;10;Contrato 3;65;Cambio Fecha Activación Contrato 3 latente
+25/08/2025;1;10;Contrato 1, 2 y 3;66;Cierre manual (por pulsador)
+25/08/2025;1;10;Reserva para usos futuros;67-89;Reservado
+25/08/2025;1;10;cambio de parámetros de calidad de suministro;90;Cambio de tiempo para variación de tensión (T)
+25/08/2025;1;10;cambio de parámetros de calidad de suministro;91;Cambio de tiempo de interrupción larga (T')
+25/08/2025;1;10;cambio de parámetros de calidad de suministro;92;Cambio de Tensión Referencia (V)
+25/08/2025;1;10;cambio de parámetros de calidad de suministro;93;Cambio de Consigna superior de tensión (+V)
+25/08/2025;1;10;cambio de parámetros de calidad de suministro;94;Cambio de Consigna inferior de tensión (-V)
+25/08/2025;1;10;cambio de parámetros de calidad de suministro;95;Cambio del umbral para estado de falta de tensión.
+25/08/2025;1;11;Potencias Contratadas;96;Activación/Cambio de Potencias Contratadas para la Gestion de la Potencia demandada en IMPORTACIÓN-Contrato 1 (valores anteriores y nuevos)
+25/08/2025;1;11;Potencias Contratadas;102;Activación/Cambio de Potencias Contratadas para la Gestion de la Potencia demandada en EXPORTACIÓN - Contrato 3 (valores anteriores y nuevos)
+25/08/2025;1;12;Firmware;97;Cambio de Firmware (versión anterior + version nueva)
+25/08/2025;1;13;Sincronización;98;Cambio hora registrador. (hora anterior y hora nueva)
+25/08/2025;1;10;Reset Parametrización;99;Reset de claves
+25/08/2025;1;10;Reset Parametrización;100;Reset de datos
+25/08/2025;1;10;Reset Parametrización;101;Reset de Parametros
+25/08/2025;1;10,11,12,13;Reserva para usos futuros;103-255;Reservado
+25/08/2025;2;20;Control elemento corte;1;Conexión manual (botón)
+25/08/2025;2;20;Control elemento corte;2;Desconexión remota (comando)
+25/08/2025;2;20;Control elemento corte;3;Conexión remota (comando)
+25/08/2025;2;20;Control elemento corte;4;Desconexión por control de potencia contratada Contrato 1
+25/08/2025;2;20;Control elemento corte;13;Desconexión por control de potencia contratada Contrato 3
+25/08/2025;2;20;Control elemento corte;5;Conexión control de potencia (IGA)
+25/08/2025;2;20;Control elemento corte;6;Inicio Bloqueo elemento por superación PSC (valido para importación y exportación)
+25/08/2025;2;20;Control elemento corte;7;Habilitación del elemento
+25/08/2025;2;20;Control elemento corte;8;Deshabilitación del elemento
+25/08/2025;2;20;Control elemento corte;9;Desconexión por control de potencia residual
+25/08/2025;2;20;Control elemento corte;10;Conexión por desactivación potencia residual
+25/08/2025;2;20;Control elemento corte;11;Conexión por control de potencia residual 
+25/08/2025;2;20;Control elemento corte;12;Cambio de modo de control del elemento de corte
+25/08/2025;2;20;Control elemento corte;14;Fin Bloqueo elemento por superación PSC (válido para importación y exportación)
+25/08/2025;2;20;Reserva para usos futuros;15-255;
+25/08/2025;3;31;Calidad.;1;VALOR MEDIO de las TENSIONES ENTRE FASES BAJO LIMITE INFERIOR:
+25/08/2025;3;31;Incidencias ABIERTAS;2;TENSIÓN FASE 1 BAJO LIMITE INFERIOR
+25/08/2025;3;31;;3;TENSIÓN FASE 2 BAJO LIMITE INFERIOR
+25/08/2025;3;31;;4;TENSIÓN FASE 3 BAJO LIMITE INFERIOR
+25/08/2025;3;31;;5;VALOR MEDIO de las TENSIONES ENTRE FASES SOBRE LIMITE SUPERIOR:
+25/08/2025;3;31;;6;TENSIÓN FASE 1 SOBRE LIMITE SUPERIOR
+25/08/2025;3;31;;7;TENSIÓN FASE 2 SOBRE LIMITE SUPERIOR
+25/08/2025;3;31;;8;TENSIÓN FASE 3 SOBRE LIMITE SUPERIOR:
+25/08/2025;3;31;;9;CORTE DE LARGA DURACIÓN EN TODAS LAS FASES
+25/08/2025;3;31;;10;CORTE DE LARGA DURACIÓN EN LA FASE1
+25/08/2025;3;31;;11;CORTE DE LARGA DURACIÓN EN LA FASE2
+25/08/2025;3;31;;12;CORTE DE LARGA DURACIÓN EN LA FASE3
+25/08/2025;3;31;;25;FALTA ALTA IMPEDANCIA (Supervisor BT)
+25/08/2025;3;32;Calidad.;13;VALOR MEDIO de las TENSIONES ENTRE FASES BAJO LIMITE INFERIOR:
+25/08/2025;3;32;Incidencias CERRADAS;14;TENSIÓN FASE 1 BAJO LIMITE INFERIOR
+25/08/2025;3;32;;15;TENSIÓN FASE 2 BAJO LIMITE INFERIOR
+25/08/2025;3;32;;16;TENSIÓN FASE 3 BAJO LIMITE INFERIOR
+25/08/2025;3;32;;17;VALOR MEDIO de las TENSIONES ENTRE FASES SOBRE LIMITE SUPERIOR:
+25/08/2025;3;32;;18;TENSIÓN FASE 1 SOBRE LIMITE SUPERIOR 
+25/08/2025;3;32;;19;TENSIÓN FASE 2 SOBRE LIMITE SUPERIOR
+25/08/2025;3;32;;20;TENSIÓN FASE 3 SOBRE LIMITE SUPERIOR
+25/08/2025;3;32;;21;CORTE DE LARGA DURACIÓN EN TODAS LAS FASES
+25/08/2025;3;32;;22;CORTE DE LARGA DURACIÓN EN LA FASE1
+25/08/2025;3;32;;23;CORTE DE LARGA DURACIÓN EN LA FASE2
+25/08/2025;3;32;;24;CORTE DE LARGA DURACIÓN EN LA FASE3
+25/08/2025;3;32;;26;FIN DE FALTA DE  ALTA IMPEDANCIA (Supervisor BT)
+25/08/2025;3;32;Reserva para usos futuros;27-255;
+25/08/2025;4;40;Fraude;1;APERTURA DE LA ENVOLVENTE PRECINTO FABRICANTE
+25/08/2025;4;40;Fraude;2;CIERRE DE LA ENVOLVENTE PRECINTO FABRICANTE
+25/08/2025;4;40;Fraude;3;APARICIÓN DE UN CAMPO MAGNÉTICO SUPERIOR A NORMA (NO APLICA)
+25/08/2025;4;40;Fraude;4;DESAPARICIÓN DE UN CAMPO MAGNÉTICO (NO APLICA)
+25/08/2025;4;40;Fraude;5;PRESENCIA INTENSIDAD ANTE AUSENCIA DE TENSIÓN
+25/08/2025;4;40;Fraude;6;INTENTO ACCESO CON CLAVE ERRÓNEA (INTRUSIÓN)
+25/08/2025;4;40;Fraude;7;APERTURA DE LA TAPA CUBRE BORNAS / CUBRE HILOS
+25/08/2025;4;40;Fraude;8;CIERRE DE LA TAPA CUBRE BORNAS / CUBRE HILOS
+25/08/2025;4;40;Fraude;9;INICIO DETECCIÓN TENSIÓN EN BORNES SALIDA ANTE APERTURA E.CORTE POR COMANDO
+25/08/2025;4;40;Fraude;10;FIN DETECCIÓN TENSIÓN EN BORNES SALIDA ANTE APERTURA E.CORTE POR COMANDO
+25/08/2025;4;40;Fraude;11;INICIO DETECCIÓN IMPEDANCIA INFINITA EN BORNES SALIDA ANTE APERTURA E.CORTE POR COMANDO
+25/08/2025;4;40;Fraude;12;FIN DETECCIÓN IMPEDANCIA INFINITA EN BORNES SALIDA ANTE APERTURA E.CORTE POR COMANDO
+25/08/2025;4;40;Fraude;13;INICIO PUENTEO CONTADOR (OPCIONAL)
+25/08/2025;4;40;Fraude;14;FIN PUENTEO CONTADOR (OPCIONAL)
+25/08/2025;4;40;Reserva para usos futuros;13-255;
+25/08/2025;5;50;Gestión de la demanda;1;Recepción orden gestión de la demanda potencia residual crítica
+25/08/2025;5;50;Gestión de la demanda;2;Recepción orden gestión de la demanda reducción % potencia crítica
+25/08/2025;5;50;Gestión de la demanda;3;Recepción orden gestión de la demanda valor absoluto de potencia crítica
+25/08/2025;5;50;Gestión de la demanda;4;Recepción orden gestión de la demanda potencia residual no critica
+25/08/2025;5;50;Gestión de la demanda;5;Aceptación gestión de la demanda por cliente potencia residual no critica
+25/08/2025;5;50;Gestión de la demanda;6;Rechazo gestión de la demanda por cliente potencia residual no critica
+25/08/2025;5;50;Gestión de la demanda;7;Recepción orden gestión de la demanda reducción % potencia no critica
+25/08/2025;5;50;Gestión de la demanda;8;Aceptación gestión de la demanda por cliente reducción % potencia no critica
+25/08/2025;5;50;Gestión de la demanda;9;Rechazo gestión de la demanda por cliente reducción % potencia no critica
+25/08/2025;5;50;Gestión de la demanda;10;Recepción orden gestión de la demanda potencia valor absoluto no critica
+25/08/2025;5;50;Gestión de la demanda;11;Aceptación gestión de la demanda por cliente potencia absoluto no critica
+25/08/2025;5;50;Gestión de la demanda;12;Rechazo gestión de la demanda por cliente potencia absoluto no critica
+25/08/2025;5;50;Gestión de la demanda;13;Cambio valor programación potencia residual contratada. Valor previo y actual
+25/08/2025;5;50;Gestión de la demanda;14;Activación/Inicio potencia residual. Valor previo y actual.
+25/08/2025;5;50;Gestión de la demanda;15;Fin potencia residual
+25/08/2025;5;50;Gestión de la demanda;16;Activación/Inicio reducción % potencia contratada
+25/08/2025;5;50;Gestión de la demanda;17;Fin reducción % potencia contratada
+25/08/2025;5;50;Gestión de la demanda;18;Activación/Inicio reducción potencia absoluta
+25/08/2025;5;50;Gestión de la demanda;19;Fin reducción potencia absoluta
+25/08/2025;5;50;Gestión de la demanda;20;Potencia demanda cercana a la potencia contratada (%)
+25/08/2025;5;50;Reserva para usos futuros;21-255;
+25/08/2025;6;60;Alta ocurrencia - Comunes;1;Inicio establecimiento de comunicacones puerto PLC
+25/08/2025;6;60;Alta ocurrencia - Comunes;2;Fin de comunicacones puerto PLC
+25/08/2025;6;60;Alta ocurrencia - Comunes;3;Inico establecimiento de comunicacones puerto óptico 
+25/08/2025;6;60;Alta ocurrencia - Comunes;4;Fin de comunicacones puerto óptico
+25/08/2025;6;60;Alta ocurrencia - Comunes;5;Inicio establecimiento de comunicacones puerto serie
+25/08/2025;6;60;Alta ocurrencia - Comunes;6;Fin de comunicacones puerto serie
+25/08/2025;6;60;Reserva para usos futuros;7-255;
+25/08/2025;7;71;Operaciones de seguridad correctas;1;Key Reset
+25/08/2025;7;71;Operaciones de seguridad correctas;2;Cambio Master key
+25/08/2025;7;71;Operaciones de seguridad correctas;3;Cambio Global Unicast Encryption Key
+25/08/2025;7;71;Operaciones de seguridad correctas;4;Cambio Authentication Key
+25/08/2025;7;71;Operaciones de seguridad correctas;5;Cambio password LLS del cliente seguro PLC
+25/08/2025;7;71;Operaciones de seguridad correctas;6;Cambio Security policy  (Value = 3)
+25/08/2025;7;72;Errores en operaciones de seguridad ;7;Error cambio Master key
+25/08/2025;7;72;Errores en operaciones de seguridad ;8;Error cambio Global Unicast Encryption Key
+25/08/2025;7;72;Errores en operaciones de seguridad ;9;Error cambio Authentication Key
+25/08/2025;7;72;Errores en operaciones de seguridad ;10;Error en el establecimiento de la asociación con clave dedicada
+25/08/2025;7;72;Errores en operaciones de seguridad ;11;Error en el cifrado y autenticación de los mensajes
+25/08/2025;7;72;Errores en operaciones de seguridad ;12;Error en el password LLS
+25/08/2025;7;72;Errores en operaciones de seguridad ;13;Error en el cambio de Security policy
+25/08/2025;7;72;Errores en operaciones de seguridad ;14-255;
