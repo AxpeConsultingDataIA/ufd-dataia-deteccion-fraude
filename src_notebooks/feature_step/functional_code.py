@@ -6,7 +6,7 @@ from config import DATA_CONFIG
 from neo4j import GraphDatabase
 import time
 from neo4j_manager import Neo4jTableManager
-from neo4j_manager import Neo4jRelationsManager
+from neo4j_relations_manager import Neo4jRelationsManager
 from config import RELACIONES_CONFIG, VALIDACIONES_RELACIONES
 from typing import Optional, List
 from pathlib import Path
@@ -47,7 +47,6 @@ def borrar_toda_bd_neo4j(uri, usuario, password, confirmar=False, borrar_props=F
         usuario (str): Usuario de Neo4j
         password (str): Contraseña de Neo4j
         confirmar (bool): DEBE ser True para ejecutar el borrado
-        borrar_props (bool): Si es True, borra primero las propiedades
 
     Returns:
         dict: Resumen de la operación
@@ -75,11 +74,10 @@ def borrar_toda_bd_neo4j(uri, usuario, password, confirmar=False, borrar_props=F
             # OPCIONAL: Borrar solo propiedades si se solicita
             if borrar_props:
                 try:
-                    # CORREGIDO: Agregar (n) después de CALL para especificar scope
                     eliminadas_nodos = session.run("""
                         MATCH (n)
                         WITH n
-                        CALL (n) {
+                        CALL {
                             WITH n
                             WITH keys(n) AS props, n
                             UNWIND props AS p
@@ -88,11 +86,10 @@ def borrar_toda_bd_neo4j(uri, usuario, password, confirmar=False, borrar_props=F
                         RETURN count(n) as nodos_afectados
                     """).single()["nodos_afectados"]
 
-                    # CORREGIDO: Agregar (r) después de CALL para especificar scope
                     eliminadas_rels = session.run("""
                         MATCH ()-[r]->()
                         WITH r
-                        CALL (r) {
+                        CALL {
                             WITH r
                             WITH keys(r) AS props, r
                             UNWIND props AS p
@@ -142,7 +139,26 @@ def borrar_toda_bd_neo4j(uri, usuario, password, confirmar=False, borrar_props=F
                 resultados["errores"].append(error_msg)
                 logging.error(error_msg)
 
-            # 3. Eliminar todas las constraints PRIMERO
+            # 3. Eliminar todos los índices
+            try:
+                indices = session.run("SHOW INDEXES").data()
+                indices_eliminados = 0
+                for indice in indices:
+                    nombre_indice = indice.get('name', 'unknown')
+                    try:
+                        session.run(f"DROP INDEX {nombre_indice}")
+                        indices_eliminados += 1
+                        logging.info(f"Índice eliminado: {nombre_indice}")
+                    except Exception as e:
+                        logging.warning(f"No se pudo eliminar índice {nombre_indice}: {str(e)}")
+                resultados["indices_eliminados"] = indices_eliminados
+                logging.info(f" {indices_eliminados} índices eliminados")
+            except Exception as e:
+                error_msg = f"Error eliminando índices: {str(e)}"
+                resultados["errores"].append(error_msg)
+                logging.error(error_msg)
+
+            # 4. Eliminar todas las constraints
             try:
                 constraints = session.run("SHOW CONSTRAINTS").data()
                 constraints_eliminadas = 0
@@ -158,31 +174,6 @@ def borrar_toda_bd_neo4j(uri, usuario, password, confirmar=False, borrar_props=F
                 logging.info(f"{constraints_eliminadas} constraints eliminadas")
             except Exception as e:
                 error_msg = f"Error eliminando constraints: {str(e)}"
-                resultados["errores"].append(error_msg)
-                logging.error(error_msg)
-
-            # 4. Eliminar índices independientes DESPUÉS
-            try:
-                indices = session.run("SHOW INDEXES").data()
-                indices_eliminados = 0
-                for indice in indices:
-                    nombre_indice = indice.get('name', 'unknown')
-                    # Verificar si el índice todavía existe y es independiente
-                    try:
-                        session.run(f"DROP INDEX {nombre_indice}")
-                        indices_eliminados += 1
-                        logging.info(f"Índice independiente eliminado: {nombre_indice}")
-                    except Exception as e:
-                        # Este warning ya no debería aparecer para índices de constraints
-                        # porque las constraints ya fueron eliminadas
-                        if "belongs to constraint" in str(e):
-                            logging.debug(f"Índice {nombre_indice} ya eliminado con su constraint")
-                        else:
-                            logging.warning(f"No se pudo eliminar índice {nombre_indice}: {str(e)}")
-                resultados["indices_eliminados"] = indices_eliminados
-                logging.info(f"{indices_eliminados} índices independientes eliminados")
-            except Exception as e:
-                error_msg = f"Error eliminando índices: {str(e)}"
                 resultados["errores"].append(error_msg)
                 logging.error(error_msg)
 
@@ -529,3 +520,120 @@ def crear_todas_las_relaciones(neo4j_config, relaciones_a_crear=None, validar_an
             resultado['estado_posterior'] = estado_posterior
     
     return resultado
+
+def limpiar_relaciones_especificas(neo4j_config, tipos_relacion=None):
+    """
+    Limpiar relaciones específicas de Neo4j
+    
+    Args:
+        neo4j_config: Configuración de conexión a Neo4j
+        tipos_relacion: Lista de tipos de relación a eliminar. Si es None, elimina todas.
+        
+    Returns:
+        Dict con resultado de la operación
+    """
+    logging.info("INICIANDO LIMPIEZA DE RELACIONES")
+    logging.info("="*40)
+    
+    relations_manager = Neo4jRelationsManager(neo4j_config)
+    
+    # Verificar estado antes
+    estado_previo = relations_manager.verificar_relaciones_existentes()
+    
+    if "error" not in estado_previo:
+        logging.info("Relaciones antes de la limpieza:")
+        for rel in estado_previo.get('relaciones_existentes', []):
+            logging.info(f"  {rel['tipo']}: {rel['cantidad']} relaciones")
+    
+    # Realizar limpieza
+    resultado_limpieza = relations_manager.limpiar_relaciones(tipos_relacion)
+    
+    # Verificar estado después
+    if resultado_limpieza.get('exito', False):
+        estado_posterior = relations_manager.verificar_relaciones_existentes()
+        
+        if "error" not in estado_posterior:
+            logging.info("Relaciones después de la limpieza:")
+            for rel in estado_posterior.get('relaciones_existentes', []):
+                logging.info(f"  {rel['tipo']}: {rel['cantidad']} relaciones")
+            
+            resultado_limpieza['estado_posterior'] = estado_posterior
+    
+    return resultado_limpieza
+
+def validar_nodos_para_relaciones(neo4j_config, tipos_nodo_requeridos):
+    """
+    Validar que existan los nodos necesarios antes de crear relaciones
+    
+    Args:
+        neo4j_config: Configuración de conexión a Neo4j
+        tipos_nodo_requeridos: Lista de tipos de nodo que deben existir
+        
+    Returns:
+        Dict con resultado de la validación
+    """
+    relations_manager = Neo4jRelationsManager(neo4j_config)
+    driver = relations_manager.conectar_neo4j()
+    
+    if not driver:
+        return {"error": "No se pudo conectar a Neo4j"}
+    
+    try:
+        with driver.session() as session:
+            nodos_existentes = {}
+            nodos_faltantes = []
+            
+            for tipo_nodo in tipos_nodo_requeridos:
+                query = f"MATCH (n:{tipo_nodo}) RETURN count(n) as cantidad"
+                resultado = session.run(query)
+                cantidad = resultado.single()['cantidad']
+                
+                nodos_existentes[tipo_nodo] = cantidad
+                
+                if cantidad == 0:
+                    nodos_faltantes.append(tipo_nodo)
+                
+                logging.info(f"Nodos {tipo_nodo}: {cantidad}")
+            
+            if nodos_faltantes:
+                logging.warning(f"Tipos de nodo faltantes: {nodos_faltantes}")
+                return {
+                    "valido": False,
+                    "nodos_existentes": nodos_existentes,
+                    "nodos_faltantes": nodos_faltantes,
+                    "mensaje": "Faltan algunos tipos de nodo"
+                }
+            else:
+                logging.info("Todos los tipos de nodo requeridos están presentes")
+                return {
+                    "valido": True,
+                    "nodos_existentes": nodos_existentes,
+                    "nodos_faltantes": [],
+                    "mensaje": "Validación exitosa"
+                }
+                
+    except Exception as e:
+        logging.error(f"Error validando nodos: {e}")
+        return {"error": str(e)}
+    finally:
+        driver.close()
+
+def obtener_relaciones_por_tipo(tipos_nodo: list):
+    """
+    Filtra relaciones que involucren ciertos tipos de nodo
+    
+    Args:
+        tipos_nodo: Lista de tipos de nodo (ej: ['Inspecciones', 'Grid_contadores'])
+    
+    Returns:
+        Lista de configuraciones de relaciones filtradas
+    """
+    relaciones_filtradas = []
+    
+    for relacion in RELACIONES_CONFIG:
+        query = relacion['query']
+        # Verificar si algún tipo de nodo está en la query
+        if any(tipo in query for tipo in tipos_nodo):
+            relaciones_filtradas.append(relacion)
+    
+    return relaciones_filtradas

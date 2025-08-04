@@ -1,7 +1,5 @@
 """
-Neo4j Manager Unificado - Gestión completa de tablas y relaciones
-Combina Neo4jTableManager y Neo4jRelationsManager en un solo archivo
-Optimizado para el uso específico en functional_code.py
+Neo4j Table Manager - Adaptado del notebook cargar_tablas_UFD_v2.ipynb
 """
 
 from neo4j import GraphDatabase
@@ -352,7 +350,17 @@ class Neo4jTableManager:
             'errores': errores,
             'nodo_label': nodo_label
         }
+    
 
+"""
+Extensión del Neo4j Manager para manejo de relaciones
+"""
+
+import logging
+from typing import Dict, List, Any, Optional
+from neo4j import GraphDatabase
+
+logger = logging.getLogger(__name__)
 
 class Neo4jRelationsManager:
     """Clase para manejar relaciones entre nodos en Neo4j"""
@@ -400,13 +408,9 @@ class Neo4jRelationsManager:
         
         nombre_relacion = relacion_config['nombre']
         query_relacion = relacion_config['query']
-        descripcion = relacion_config.get('descripcion', 'Sin descripción')
         
         logger.info(f"Creando relación: {nombre_relacion}")
-        logger.info(f"Descripción: {descripcion}")
-        logger.debug(f"Query: {query_relacion}")
-        
-        inicio_tiempo = time.time()
+        logger.info(f"Query: {query_relacion}")
         
         try:
             with driver.session() as session:
@@ -416,33 +420,23 @@ class Neo4jRelationsManager:
                 
                 relaciones_creadas = summary.counters.relationships_created
                 propiedades_set = summary.counters.properties_set
-                tiempo_transcurrido = round(time.time() - inicio_tiempo, 2)
                 
-                if relaciones_creadas > 0:
-                    logger.info(f"{nombre_relacion} completada:")
-                    logger.info(f"Relaciones creadas: {relaciones_creadas:,}")
-                    logger.info(f"Propiedades establecidas: {propiedades_set:,}")
-                    logger.info(f"Tiempo: {tiempo_transcurrido}s")
-                else:
-                    logger.warning(f"{nombre_relacion}: No se crearon relaciones")
-                    logger.warning(f"   Esto puede ser normal si no hay datos que coincidan")
+                logger.info(f"Relación {nombre_relacion} completada:")
+                logger.info(f"  Relaciones creadas: {relaciones_creadas}")
+                logger.info(f"  Propiedades establecidas: {propiedades_set}")
                 
                 return {
                     'nombre': nombre_relacion,
                     'relaciones_creadas': relaciones_creadas,
                     'propiedades_set': propiedades_set,
-                    'tiempo_segundos': tiempo_transcurrido,
                     'exito': True
                 }
                 
         except Exception as e:
-            tiempo_transcurrido = round(time.time() - inicio_tiempo, 2)
             logger.error(f"Error creando relación {nombre_relacion}: {e}")
-            logger.error(f"Tiempo hasta error: {tiempo_transcurrido}s")
             return {
                 'nombre': nombre_relacion,
                 'error': str(e),
-                'tiempo_segundos': tiempo_transcurrido,
                 'exito': False
             }
         finally:
@@ -458,6 +452,7 @@ class Neo4jRelationsManager:
         Returns:
             Dict con resumen de todas las operaciones
         """
+        logger.info("="*60)
         logger.info("INICIANDO CREACIÓN DE RELACIONES")
         logger.info("="*60)
         
@@ -465,13 +460,9 @@ class Neo4jRelationsManager:
         total_relaciones_creadas = 0
         relaciones_exitosas = 0
         relaciones_fallidas = 0
-        tiempo_total_inicio = time.time()
         
-        for i, relacion_config in enumerate(relaciones_config, 1):
+        for relacion_config in relaciones_config:
             nombre = relacion_config['nombre']
-            
-            logger.info(f"\nProcesando {i}/{len(relaciones_config)}: {nombre}")
-            logger.info("-" * 40)
             
             try:
                 resultado = self.crear_relacion_por_lotes(relacion_config)
@@ -484,7 +475,7 @@ class Neo4jRelationsManager:
                     relaciones_fallidas += 1
                     
             except Exception as e:
-                logger.error(f"Error crítico procesando relación {nombre}: {e}")
+                logger.error(f"Error procesando relación {nombre}: {e}")
                 resultados[nombre] = {
                     'nombre': nombre,
                     'error': str(e),
@@ -492,44 +483,32 @@ class Neo4jRelationsManager:
                 }
                 relaciones_fallidas += 1
         
-        tiempo_total = round(time.time() - tiempo_total_inicio, 2)
-        
         # Resumen final
-        logger.info("\n" + "RESUMEN CREACIÓN DE RELACIONES")
+        logger.info("\n" + "="*60)
+        logger.info("RESUMEN CREACIÓN DE RELACIONES")
         logger.info("="*60)
-        logger.info(f"Total tipos de relaciones procesadas: {len(relaciones_config)}")
+        logger.info(f"Total relaciones procesadas: {len(relaciones_config)}")
         logger.info(f"Exitosas: {relaciones_exitosas}")
         logger.info(f"Fallidas: {relaciones_fallidas}")
-        logger.info(f"Total relaciones creadas: {total_relaciones_creadas:,}")
-        logger.info(f"Tiempo total: {tiempo_total}s")
+        logger.info(f"Total relaciones creadas: {total_relaciones_creadas}")
         
         if relaciones_fallidas > 0:
-            logger.warning(f"\nRELACIONES CON ERRORES ({relaciones_fallidas}):")
+            logger.warning("Relaciones con errores:")
             for nombre, resultado in resultados.items():
                 if not resultado.get('exito', False):
-                    logger.error(f"{nombre}: {resultado.get('error', 'Error desconocido')}")
-        
-        if relaciones_exitosas > 0:
-            logger.info(f"\nRELACIONES EXITOSAS ({relaciones_exitosas}):")
-            for nombre, resultado in resultados.items():
-                if resultado.get('exito', False):
-                    cantidad = resultado.get('relaciones_creadas', 0)
-                    tiempo = resultado.get('tiempo_segundos', 0)
-                    logger.info(f"{nombre}: {cantidad:,} relaciones ({tiempo}s)")
+                    logger.error(f"  {nombre}: {resultado.get('error', 'Error desconocido')}")
         
         return {
             'total_procesadas': len(relaciones_config),
             'exitosas': relaciones_exitosas,
             'fallidas': relaciones_fallidas,
             'total_relaciones_creadas': total_relaciones_creadas,
-            'tiempo_total_segundos': tiempo_total,
             'resultados_detallados': resultados
         }
 
     def verificar_relaciones_existentes(self) -> Dict[str, Any]:
         """
         Verificar qué relaciones ya existen en la base de datos
-        - USADA en functional_code.py -> crear_todas_las_relaciones()
         
         Returns:
             Dict con información de relaciones existentes
@@ -549,32 +528,73 @@ class Neo4jRelationsManager:
                 
                 resultado = session.run(query_tipos)
                 relaciones_existentes = []
-                total_relaciones = 0
                 
                 for record in resultado:
-                    cantidad = record['cantidad']
                     relaciones_existentes.append({
                         'tipo': record['tipo_relacion'],
-                        'cantidad': cantidad
+                        'cantidad': record['cantidad']
                     })
-                    total_relaciones += cantidad
                 
-                if relaciones_existentes:
-                    logger.info(f"Relaciones existentes en Neo4j ({len(relaciones_existentes)} tipos):")
-                    for rel in relaciones_existentes:
-                        logger.info(f"{rel['tipo']}: {rel['cantidad']:,} relaciones")
-                    logger.info(f"Total relaciones en BD: {total_relaciones:,}")
-                else:
-                    logger.info("No hay relaciones en la base de datos")
+                logger.info("Relaciones existentes en Neo4j:")
+                for rel in relaciones_existentes:
+                    logger.info(f"  {rel['tipo']}: {rel['cantidad']} relaciones")
                 
                 return {
                     'relaciones_existentes': relaciones_existentes,
                     'total_tipos': len(relaciones_existentes),
-                    'total_relaciones': total_relaciones
+                    'total_relaciones': sum(rel['cantidad'] for rel in relaciones_existentes)
                 }
                 
         except Exception as e:
             logger.error(f"Error verificando relaciones: {e}")
+            return {"error": str(e)}
+        finally:
+            driver.close()
+
+    def limpiar_relaciones(self, tipos_relacion: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        Limpiar relaciones específicas o todas las relaciones
+        
+        Args:
+            tipos_relacion: Lista de tipos de relación a eliminar. Si es None, elimina todas.
+            
+        Returns:
+            Dict con estadísticas de la limpieza
+        """
+        driver = self.conectar_neo4j()
+        if not driver:
+            return {"error": "No se pudo conectar a Neo4j"}
+        
+        try:
+            with driver.session() as session:
+                if tipos_relacion is None:
+                    # Eliminar todas las relaciones
+                    query = "MATCH ()-[r]-() DELETE r RETURN count(r) as eliminadas"
+                    logger.info("Eliminando TODAS las relaciones...")
+                else:
+                    # Eliminar relaciones específicas
+                    tipos_str = "', '".join(tipos_relacion)
+                    query = f"""
+                    MATCH ()-[r]->()
+                    WHERE type(r) IN ['{tipos_str}']
+                    DELETE r
+                    RETURN count(r) as eliminadas
+                    """
+                    logger.info(f"Eliminando relaciones de tipos: {tipos_relacion}")
+                
+                resultado = session.run(query)
+                eliminadas = resultado.single()['eliminadas']
+                
+                logger.info(f"Relaciones eliminadas: {eliminadas}")
+                
+                return {
+                    'relaciones_eliminadas': eliminadas,
+                    'tipos_eliminados': tipos_relacion,
+                    'exito': True
+                }
+                
+        except Exception as e:
+            logger.error(f"Error limpiando relaciones: {e}")
             return {"error": str(e)}
         finally:
             driver.close()
