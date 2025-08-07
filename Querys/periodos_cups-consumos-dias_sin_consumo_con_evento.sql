@@ -58,7 +58,8 @@ datos_filtrados AS (
         )
         AND a.fh >= CURRENT_DATE - INTERVAL '15' MONTH
         AND b.origen = 'ZEUS'
-        AND b.provincia_sgc = 'MADRID' 
+        AND b.ccaa_sgc in ('MADRID', 'CASTILLA LA MANCHA')
+        AND b.municipio_sgc IN ('ALCALA DE HENARES', 'PUERTOLLANO')  
 ),
 datos_por_dia AS (
   -- Base para las métricas de eventos: días sin consumo con eventos por día
@@ -334,6 +335,197 @@ metricas_eventos AS (
 
   FROM datos_por_dia dpd, fechas_referencia f
   GROUP BY dpd.cups_sgc
+),
+metricas_eventos_grupo4_por_tipo AS (
+  SELECT
+    df.cups_sgc,
+    
+    -- Semana actual - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_semana_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_semana_actual,
+    
+    -- Semana pasada - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_semana_pasada,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_semana_pasada,
+    
+    -- Misma semana año pasado - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_semana_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_semana_anio_pasado,
+    
+    -- Mes actual - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_mes_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_mes_actual,
+    
+    -- Mes pasado - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_mes_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_mes_pasado,
+    
+    -- Mismo mes año pasado - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_mes_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_mes_anio_pasado,
+    
+    -- Trimestre actual - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_trimestre_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_trimestre_actual,
+    
+    -- Trimestre pasado - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_trimestre_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_trimestre_pasado,
+    
+    -- Mismo trimestre año pasado - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_trimestre_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_trimestre_anio_pasado,
+    
+    -- Año actual - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_anio_actual,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_anio_actual,
+    
+    -- Año pasado - eventos grupo 4 por tipo
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 1 THEN 1 END) AS eventos_grupo4_tipo1_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 2 THEN 1 END) AS eventos_grupo4_tipo2_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 3 THEN 1 END) AS eventos_grupo4_tipo3_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 4 THEN 1 END) AS eventos_grupo4_tipo4_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 5 THEN 1 END) AS eventos_grupo4_tipo5_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 6 THEN 1 END) AS eventos_grupo4_tipo6_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 7 THEN 1 END) AS eventos_grupo4_tipo7_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 8 THEN 1 END) AS eventos_grupo4_tipo8_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 9 THEN 1 END) AS eventos_grupo4_tipo9_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 10 THEN 1 END) AS eventos_grupo4_tipo10_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 11 THEN 1 END) AS eventos_grupo4_tipo11_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 12 THEN 1 END) AS eventos_grupo4_tipo12_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 13 THEN 1 END) AS eventos_grupo4_tipo13_anio_pasado,
+    COUNT(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND s09.et = 4 AND s09.c = 14 THEN 1 END) AS eventos_grupo4_tipo14_anio_pasado
+
+  FROM datos_filtrados df
+  CROSS JOIN fechas_referencia f
+  LEFT JOIN transformation_esir.s09 s09 
+    ON df.cnt_id = s09.cnt_id
+    AND df.partition_0 = s09.partition_0
+    AND df.partition_1 = s09.partition_1  
+    AND df.partition_2 = s09.partition_2
+    AND DATE_TRUNC('hour', df.fh) = DATE_TRUNC('hour', s09.fh)
+    AND s09.et = 4  -- Solo eventos del grupo 4
+  GROUP BY df.cups_sgc
 )
 
 -- SELECT FINAL: Combina todas las métricas de forma modular
@@ -474,8 +666,186 @@ SELECT
   me.count_eventos_anio_actual,
   me.eventos_dias_sin_consumo_con_evento_anio_pasado,
   me.eventos_dias_sin_consumo_con_evento_grupo4_anio_pasado,
-  me.count_eventos_anio_pasado
+  me.count_eventos_anio_pasado,
 
+  -- MÉTRICAS DE EVENTOS GRUPO 4 POR TIPO (126 columnas)
+  -- Semana actual
+  meg4.eventos_grupo4_tipo1_semana_actual,
+  meg4.eventos_grupo4_tipo2_semana_actual,
+  meg4.eventos_grupo4_tipo3_semana_actual,
+  meg4.eventos_grupo4_tipo4_semana_actual,
+  meg4.eventos_grupo4_tipo5_semana_actual,
+  meg4.eventos_grupo4_tipo6_semana_actual,
+  meg4.eventos_grupo4_tipo7_semana_actual,
+  meg4.eventos_grupo4_tipo8_semana_actual,
+  meg4.eventos_grupo4_tipo9_semana_actual,
+  meg4.eventos_grupo4_tipo10_semana_actual,
+  meg4.eventos_grupo4_tipo11_semana_actual,
+  meg4.eventos_grupo4_tipo12_semana_actual,
+  meg4.eventos_grupo4_tipo13_semana_actual,
+  meg4.eventos_grupo4_tipo14_semana_actual,
+  
+  -- Semana pasada
+  meg4.eventos_grupo4_tipo1_semana_pasada,
+  meg4.eventos_grupo4_tipo2_semana_pasada,
+  meg4.eventos_grupo4_tipo3_semana_pasada,
+  meg4.eventos_grupo4_tipo4_semana_pasada,
+  meg4.eventos_grupo4_tipo5_semana_pasada,
+  meg4.eventos_grupo4_tipo6_semana_pasada,
+  meg4.eventos_grupo4_tipo7_semana_pasada,
+  meg4.eventos_grupo4_tipo8_semana_pasada,
+  meg4.eventos_grupo4_tipo9_semana_pasada,
+  meg4.eventos_grupo4_tipo10_semana_pasada,
+  meg4.eventos_grupo4_tipo11_semana_pasada,
+  meg4.eventos_grupo4_tipo12_semana_pasada,
+  meg4.eventos_grupo4_tipo13_semana_pasada,
+  meg4.eventos_grupo4_tipo14_semana_pasada,
+  
+  -- Semana año pasado
+  meg4.eventos_grupo4_tipo1_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo2_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo3_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo4_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo5_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo6_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo7_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo8_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo9_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo10_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo11_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo12_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo13_semana_anio_pasado,
+  meg4.eventos_grupo4_tipo14_semana_anio_pasado,
+  
+  -- Mes actual
+  meg4.eventos_grupo4_tipo1_mes_actual,
+  meg4.eventos_grupo4_tipo2_mes_actual,
+  meg4.eventos_grupo4_tipo3_mes_actual,
+  meg4.eventos_grupo4_tipo4_mes_actual,
+  meg4.eventos_grupo4_tipo5_mes_actual,
+  meg4.eventos_grupo4_tipo6_mes_actual,
+  meg4.eventos_grupo4_tipo7_mes_actual,
+  meg4.eventos_grupo4_tipo8_mes_actual,
+  meg4.eventos_grupo4_tipo9_mes_actual,
+  meg4.eventos_grupo4_tipo10_mes_actual,
+  meg4.eventos_grupo4_tipo11_mes_actual,
+  meg4.eventos_grupo4_tipo12_mes_actual,
+  meg4.eventos_grupo4_tipo13_mes_actual,
+  meg4.eventos_grupo4_tipo14_mes_actual,
+  
+  -- Mes pasado
+  meg4.eventos_grupo4_tipo1_mes_pasado,
+  meg4.eventos_grupo4_tipo2_mes_pasado,
+  meg4.eventos_grupo4_tipo3_mes_pasado,
+  meg4.eventos_grupo4_tipo4_mes_pasado,
+  meg4.eventos_grupo4_tipo5_mes_pasado,
+  meg4.eventos_grupo4_tipo6_mes_pasado,
+  meg4.eventos_grupo4_tipo7_mes_pasado,
+  meg4.eventos_grupo4_tipo8_mes_pasado,
+  meg4.eventos_grupo4_tipo9_mes_pasado,
+  meg4.eventos_grupo4_tipo10_mes_pasado,
+  meg4.eventos_grupo4_tipo11_mes_pasado,
+  meg4.eventos_grupo4_tipo12_mes_pasado,
+  meg4.eventos_grupo4_tipo13_mes_pasado,
+  meg4.eventos_grupo4_tipo14_mes_pasado,
+  
+  -- Mes año pasado
+  meg4.eventos_grupo4_tipo1_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo2_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo3_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo4_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo5_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo6_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo7_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo8_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo9_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo10_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo11_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo12_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo13_mes_anio_pasado,
+  meg4.eventos_grupo4_tipo14_mes_anio_pasado,
+  
+  -- Trimestre actual
+  meg4.eventos_grupo4_tipo1_trimestre_actual,
+  meg4.eventos_grupo4_tipo2_trimestre_actual,
+  meg4.eventos_grupo4_tipo3_trimestre_actual,
+  meg4.eventos_grupo4_tipo4_trimestre_actual,
+  meg4.eventos_grupo4_tipo5_trimestre_actual,
+  meg4.eventos_grupo4_tipo6_trimestre_actual,
+  meg4.eventos_grupo4_tipo7_trimestre_actual,
+  meg4.eventos_grupo4_tipo8_trimestre_actual,
+  meg4.eventos_grupo4_tipo9_trimestre_actual,
+  meg4.eventos_grupo4_tipo10_trimestre_actual,
+  meg4.eventos_grupo4_tipo11_trimestre_actual,
+  meg4.eventos_grupo4_tipo12_trimestre_actual,
+  meg4.eventos_grupo4_tipo13_trimestre_actual,
+  meg4.eventos_grupo4_tipo14_trimestre_actual,
+  
+  -- Trimestre pasado
+  meg4.eventos_grupo4_tipo1_trimestre_pasado,
+  meg4.eventos_grupo4_tipo2_trimestre_pasado,
+  meg4.eventos_grupo4_tipo3_trimestre_pasado,
+  meg4.eventos_grupo4_tipo4_trimestre_pasado,
+  meg4.eventos_grupo4_tipo5_trimestre_pasado,
+  meg4.eventos_grupo4_tipo6_trimestre_pasado,
+  meg4.eventos_grupo4_tipo7_trimestre_pasado,
+  meg4.eventos_grupo4_tipo8_trimestre_pasado,
+  meg4.eventos_grupo4_tipo9_trimestre_pasado,
+  meg4.eventos_grupo4_tipo10_trimestre_pasado,
+  meg4.eventos_grupo4_tipo11_trimestre_pasado,
+  meg4.eventos_grupo4_tipo12_trimestre_pasado,
+  meg4.eventos_grupo4_tipo13_trimestre_pasado,
+  meg4.eventos_grupo4_tipo14_trimestre_pasado,
+  
+  -- Trimestre año pasado
+  meg4.eventos_grupo4_tipo1_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo2_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo3_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo4_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo5_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo6_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo7_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo8_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo9_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo10_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo11_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo12_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo13_trimestre_anio_pasado,
+  meg4.eventos_grupo4_tipo14_trimestre_anio_pasado,
+  
+  -- Año actual
+  meg4.eventos_grupo4_tipo1_anio_actual,
+  meg4.eventos_grupo4_tipo2_anio_actual,
+  meg4.eventos_grupo4_tipo3_anio_actual,
+  meg4.eventos_grupo4_tipo4_anio_actual,
+  meg4.eventos_grupo4_tipo5_anio_actual,
+  meg4.eventos_grupo4_tipo6_anio_actual,
+  meg4.eventos_grupo4_tipo7_anio_actual,
+  meg4.eventos_grupo4_tipo8_anio_actual,
+  meg4.eventos_grupo4_tipo9_anio_actual,
+  meg4.eventos_grupo4_tipo10_anio_actual,
+  meg4.eventos_grupo4_tipo11_anio_actual,
+  meg4.eventos_grupo4_tipo12_anio_actual,
+  meg4.eventos_grupo4_tipo13_anio_actual,
+  meg4.eventos_grupo4_tipo14_anio_actual,
+  
+  -- Año pasado
+  meg4.eventos_grupo4_tipo1_anio_pasado,
+  meg4.eventos_grupo4_tipo2_anio_pasado,
+  meg4.eventos_grupo4_tipo3_anio_pasado,
+  meg4.eventos_grupo4_tipo4_anio_pasado,
+  meg4.eventos_grupo4_tipo5_anio_pasado,
+  meg4.eventos_grupo4_tipo6_anio_pasado,
+  meg4.eventos_grupo4_tipo7_anio_pasado,
+  meg4.eventos_grupo4_tipo8_anio_pasado,
+  meg4.eventos_grupo4_tipo9_anio_pasado,
+  meg4.eventos_grupo4_tipo10_anio_pasado,
+  meg4.eventos_grupo4_tipo11_anio_pasado,
+  meg4.eventos_grupo4_tipo12_anio_pasado,
+  meg4.eventos_grupo4_tipo13_anio_pasado,
+  meg4.eventos_grupo4_tipo14_anio_pasado
+  
 FROM metricas_consumos mc
 LEFT JOIN metricas_eventos me ON mc.cups_sgc = me.cups_sgc
+LEFT JOIN metricas_eventos_grupo4_por_tipo meg4 ON mc.cups_sgc = meg4.cups_sgc				 
 ORDER BY mc.cups_sgc;
