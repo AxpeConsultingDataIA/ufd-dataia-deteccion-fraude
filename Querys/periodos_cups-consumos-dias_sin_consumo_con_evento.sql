@@ -81,65 +81,96 @@ metricas_consumos AS (
   SELECT
     df.cups_sgc,
     -- Semana actual
+    -- estadísticos del consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END) AS consumo_suma_semana_actual,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END), 2) AS consumo_media_semana_actual,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END) AS consumo_max_semana_actual,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END) AS consumo_min_semana_actual,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END), 2) AS consumo_stddev_semana_actual,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END), 2) AS consumo_var_semana_actual,
+    -- consumo zero y consumo umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual) AS consumo_zero_semana_actual,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual) AS consumo_umbral_semana_actual,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_semana_actual,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_semana_actual,
 
     -- Semana pasada
+    -- estadísticos del consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END) AS consumo_suma_semana_pasada,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END), 2) AS consumo_media_semana_pasada,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END) AS consumo_max_semana_pasada,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END) AS consumo_min_semana_pasada,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END), 2) AS consumo_stddev_semana_pasada,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END), 2) AS consumo_var_semana_pasada,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada) AS consumo_zero_semana_pasada,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada) AS consumo_umbral_semana_pasada,
-    
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_semana_pasada,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_semana_pasada,
 
     -- Misma semana año pasado
+    -- estadísticos consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END) AS consumo_suma_semana_anio_pasado,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END), 2) AS consumo_media_semana_anio_pasado,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END) AS consumo_max_semana_anio_pasado,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END) AS consumo_min_semana_anio_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END), 2) AS consumo_stddev_semana_anio_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END), 2) AS consumo_var_semana_anio_pasado,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado) AS consumo_zero_semana_anio_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado) AS consumo_umbral_semana_anio_pasado,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_semana_anio_pasado,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_semana_anio_pasado,
 
     -- Mes actual
+    -- estadísticos de consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END) AS consumo_suma_mes_actual,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END), 2) AS consumo_media_mes_actual,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END) AS consumo_max_mes_actual,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END) AS consumo_min_mes_actual,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END), 2) AS consumo_stddev_mes_actual,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END), 2) AS consumo_var_mes_actual,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual) AS consumo_zero_mes_actual,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual) AS consumo_umbral_mes_actual,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_mes_actual,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_mes_actual,
+
 
     -- Mes pasado
+    -- estadísticos de consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END) AS consumo_suma_mes_pasado,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END), 2) AS consumo_media_mes_pasado,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END) AS consumo_max_mes_pasado,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END) AS consumo_min_mes_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END), 2) AS consumo_stddev_mes_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END), 2) AS consumo_var_mes_pasado,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado) AS consumo_zero_mes_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado) AS consumo_umbral_mes_pasado,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_mes_pasado,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_mes_pasado,
 
     -- Mismo mes año pasado
+    -- estadísticos del consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END) AS consumo_suma_mes_anio_pasado,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END), 2) AS consumo_media_mes_anio_pasado,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END) AS consumo_max_mes_anio_pasado,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END) AS consumo_min_mes_anio_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END), 2) AS consumo_stddev_mes_anio_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END), 2) AS consumo_var_mes_anio_pasado,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado) AS consumo_zero_mes_anio_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado) AS consumo_umbral_mes_anio_pasado,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_mes_anio_pasado,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_mes_anio_pasado,
+
 
     -- Trimestre actual
     SUM(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual THEN df.ai END) AS consumo_suma_trimestre_actual,
@@ -148,20 +179,30 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual THEN df.ai END) AS consumo_min_trimestre_actual,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual THEN df.ai END), 2) AS consumo_stddev_trimestre_actual,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual THEN df.ai END), 2) AS consumo_var_trimestre_actual,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual) AS consumo_zero_trimestre_actual,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual) AS consumo_umbral_trimestre_actual,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_trimestre_actual,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_trimestre_actual,
 
     -- Trimestre pasado
+    -- estadísticos consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END) AS consumo_suma_trimestre_pasado,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END), 2) AS consumo_media_trimestre_pasado,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END) AS consumo_max_trimestre_pasado,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END) AS consumo_min_trimestre_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END), 2) AS consumo_stddev_trimestre_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END), 2) AS consumo_var_trimestre_pasado,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado) AS consumo_zero_trimestre_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado) AS consumo_umbral_trimestre_pasado,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_trimestre_pasado,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_trimestre_pasado,
 
     -- Mismo trimestre año pasado
+    -- estadísticos consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado THEN df.ai END) AS consumo_suma_trimestre_anio_pasado,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado THEN df.ai END), 2) AS consumo_media_trimestre_anio_pasado,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado THEN df.ai END) AS consumo_max_trimestre_anio_pasado,
@@ -170,26 +211,40 @@ metricas_consumos AS (
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado THEN df.ai END), 2) AS consumo_var_trimestre_anio_pasado,
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado) AS consumo_zero_trimestre_anio_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado) AS consumo_umbral_trimestre_anio_pasado,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_trimestre_anio_pasado,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_trimestre_anio_pasado,
+
 
     -- Año actual
+    -- estadísticos consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END) AS consumo_suma_anio_actual,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END), 2) AS consumo_media_anio_actual,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END) AS consumo_max_anio_actual,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END) AS consumo_min_anio_actual,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END), 2) AS consumo_stddev_anio_actual,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END), 2) AS consumo_var_anio_actual,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual) AS consumo_zero_anio_actual,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual) AS consumo_umbral_anio_actual,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_anio_actual,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_anio_actual,
 
     -- Año pasado
+    -- estadísticos consumo
     SUM(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END) AS consumo_suma_anio_pasado,
     ROUND(AVG(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END), 2) AS consumo_media_anio_pasado,
     MAX(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END) AS consumo_max_anio_pasado,
     MIN(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END) AS consumo_min_anio_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END), 2) AS consumo_stddev_anio_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END), 2) AS consumo_var_anio_pasado,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado) AS consumo_zero_anio_pasado,
-    COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado) AS consumo_umbral_anio_pasado
+    COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado) AS consumo_umbral_anio_pasado,
+    -- ratio dia noche
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND EXTRACT(HOUR FROM df.fh) BETWEEN 8 AND 19 THEN df.ai END) AS consumo_dia_anio_pasado,
+    SUM(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado AND (EXTRACT(HOUR FROM df.fh) < 8 OR EXTRACT(HOUR FROM df.fh) >= 20) THEN df.ai END) AS consumo_noche_anio_pasado
 
   FROM datos_filtrados df, fechas_referencia f
   GROUP BY df.cups_sgc
@@ -294,6 +349,7 @@ SELECT
   mc.consumo_var_semana_actual,
   mc.consumo_zero_semana_actual,
   mc.consumo_umbral_semana_actual,
+  ROUND(mc.consumo_dia_semana_actual/NULLIF(mc.consumo_noche_semana_actual, 0), 2) as ratio_dia_noche_semana_actual,
   mc.consumo_suma_semana_pasada,
   mc.consumo_media_semana_pasada,
   mc.consumo_max_semana_pasada,
@@ -302,6 +358,7 @@ SELECT
   mc.consumo_var_semana_pasada,
   mc.consumo_zero_semana_pasada,
   mc.consumo_umbral_semana_pasada,
+  ROUND(mc.consumo_dia_semana_pasada/NULLIF(mc.consumo_noche_semana_pasada, 0), 2) as ratio_dia_noche_semana_pasada,
   mc.consumo_suma_semana_anio_pasado,
   mc.consumo_media_semana_anio_pasado,
   mc.consumo_max_semana_anio_pasado,
@@ -310,6 +367,7 @@ SELECT
   mc.consumo_var_semana_anio_pasado,
   mc.consumo_zero_semana_anio_pasado,
   mc.consumo_umbral_semana_anio_pasado,
+  ROUND(mc.consumo_dia_semana_anio_pasado/NULLIF(mc.consumo_noche_semana_anio_pasado, 0), 2) as ratio_dia_noche_semana_anio_pasado,
   mc.consumo_suma_mes_actual,
   mc.consumo_media_mes_actual,
   mc.consumo_max_mes_actual,
@@ -318,6 +376,7 @@ SELECT
   mc.consumo_var_mes_actual,
   mc.consumo_zero_mes_actual,
   mc.consumo_umbral_mes_actual,
+  ROUND(mc.consumo_dia_mes_actual/NULLIF(mc.consumo_noche_mes_actual, 0), 2) as ratio_dia_noche_mes_actual,
   mc.consumo_suma_mes_pasado,
   mc.consumo_media_mes_pasado,
   mc.consumo_max_mes_pasado,
@@ -326,6 +385,7 @@ SELECT
   mc.consumo_var_mes_pasado,
   mc.consumo_zero_mes_pasado,
   mc.consumo_umbral_mes_pasado,
+  ROUND(mc.consumo_dia_mes_pasado/NULLIF(mc.consumo_noche_mes_pasado, 0), 2) as ratio_dia_noche_mes_pasado,
   mc.consumo_suma_mes_anio_pasado,
   mc.consumo_media_mes_anio_pasado,
   mc.consumo_max_mes_anio_pasado,
@@ -334,6 +394,7 @@ SELECT
   mc.consumo_var_mes_anio_pasado,
   mc.consumo_zero_mes_anio_pasado,
   mc.consumo_umbral_mes_anio_pasado,
+  ROUND(mc.consumo_dia_mes_anio_pasado/NULLIF(mc.consumo_noche_mes_anio_pasado, 0), 2) as ratio_dia_noche_mes_anio_pasado,
   mc.consumo_suma_trimestre_actual,
   mc.consumo_media_trimestre_actual,
   mc.consumo_max_trimestre_actual,
@@ -342,6 +403,7 @@ SELECT
   mc.consumo_var_trimestre_actual,
   mc.consumo_zero_trimestre_actual,
   mc.consumo_umbral_trimestre_actual,
+  ROUND(mc.consumo_dia_trimestre_actual/NULLIF(mc.consumo_noche_trimestre_actual, 0), 2) as ratio_dia_noche_trimestre_actual,
   mc.consumo_suma_trimestre_pasado,
   mc.consumo_media_trimestre_pasado,
   mc.consumo_max_trimestre_pasado,
@@ -350,6 +412,7 @@ SELECT
   mc.consumo_var_trimestre_pasado,
   mc.consumo_zero_trimestre_pasado,
   mc.consumo_umbral_trimestre_pasado,
+  ROUND(mc.consumo_dia_trimestre_pasado/NULLIF(mc.consumo_noche_trimestre_pasado, 0), 2) as ratio_dia_noche_trimestre_pasado,
   mc.consumo_suma_trimestre_anio_pasado,
   mc.consumo_media_trimestre_anio_pasado,
   mc.consumo_max_trimestre_anio_pasado,
@@ -358,6 +421,7 @@ SELECT
   mc.consumo_var_trimestre_anio_pasado,
   mc.consumo_zero_trimestre_anio_pasado,
   mc.consumo_umbral_trimestre_anio_pasado,
+  ROUND(mc.consumo_dia_trimestre_anio_pasado/NULLIF(mc.consumo_noche_trimestre_anio_pasado, 0), 2) as ratio_dia_noche_trimestre_anio_pasado,
   mc.consumo_suma_anio_actual,
   mc.consumo_media_anio_actual,
   mc.consumo_max_anio_actual,
@@ -366,6 +430,7 @@ SELECT
   mc.consumo_var_anio_actual,
   mc.consumo_zero_anio_actual,
   mc.consumo_umbral_anio_actual,
+  ROUND(mc.consumo_dia_anio_actual/NULLIF(mc.consumo_noche_anio_actual, 0), 2) as ratio_dia_noche_anio_actual,
   mc.consumo_suma_anio_pasado,
   mc.consumo_media_anio_pasado,
   mc.consumo_max_anio_pasado,
@@ -374,6 +439,7 @@ SELECT
   mc.consumo_var_anio_pasado,
   mc.consumo_zero_anio_pasado,
   mc.consumo_umbral_anio_pasado,
+  ROUND(mc.consumo_dia_anio_pasado/NULLIF(mc.consumo_noche_anio_pasado, 0), 2) as ratio_dia_noche_anio_pasado,
   
   -- MÉTRICAS DE EVENTOS (22 columnas)
   me.eventos_dias_sin_consumo_con_evento_semana_actual,
