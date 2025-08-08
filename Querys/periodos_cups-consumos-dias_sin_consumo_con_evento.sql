@@ -89,6 +89,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END) AS consumo_min_semana_actual,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END), 2) AS consumo_stddev_semana_actual,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END), 2) AS consumo_var_semana_actual,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual THEN df.ai END), 2) skewness_semana_actual,
     -- consumo zero y consumo umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual) AS consumo_zero_semana_actual,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_semana_actual AND f.fin_semana_actual) AS consumo_umbral_semana_actual,
@@ -104,6 +106,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END) AS consumo_min_semana_pasada,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END), 2) AS consumo_stddev_semana_pasada,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END), 2) AS consumo_var_semana_pasada,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada THEN df.ai END), 2) skewness_semana_pasada,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada) AS consumo_zero_semana_pasada,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_semana_pasada AND f.fin_semana_pasada) AS consumo_umbral_semana_pasada,
@@ -119,6 +123,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END) AS consumo_min_semana_anio_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END), 2) AS consumo_stddev_semana_anio_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END), 2) AS consumo_var_semana_anio_pasado,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado THEN df.ai END), 2) skewness_semana_anio_pasado,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado) AS consumo_zero_semana_anio_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_misma_semana_anio_pasado AND f.fin_misma_semana_anio_pasado) AS consumo_umbral_semana_anio_pasado,
@@ -134,6 +140,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END) AS consumo_min_mes_actual,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END), 2) AS consumo_stddev_mes_actual,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END), 2) AS consumo_var_mes_actual,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual THEN df.ai END), 2) skewness_mes_actual,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual) AS consumo_zero_mes_actual,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mes_actual AND f.fin_mes_actual) AS consumo_umbral_mes_actual,
@@ -150,6 +158,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END) AS consumo_min_mes_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END), 2) AS consumo_stddev_mes_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END), 2) AS consumo_var_mes_pasado,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado THEN df.ai END), 2) skewness_mes_pasado,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado) AS consumo_zero_mes_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mes_pasado AND f.fin_mes_pasado) AS consumo_umbral_mes_pasado,
@@ -165,6 +175,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END) AS consumo_min_mes_anio_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END), 2) AS consumo_stddev_mes_anio_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END), 2) AS consumo_var_mes_anio_pasado,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado THEN df.ai END), 2) skewness_mes_anio_pasado,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado) AS consumo_zero_mes_anio_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mismo_mes_anio_pasado AND f.fin_mismo_mes_anio_pasado) AS consumo_umbral_mes_anio_pasado,
@@ -180,6 +192,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual THEN df.ai END) AS consumo_min_trimestre_actual,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual THEN df.ai END), 2) AS consumo_stddev_trimestre_actual,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual THEN df.ai END), 2) AS consumo_var_trimestre_actual,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual THEN df.ai END), 2) skewness_trimestre_actual,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual) AS consumo_zero_trimestre_actual,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_trimestre_actual AND f.fin_trimestre_actual) AS consumo_umbral_trimestre_actual,
@@ -195,6 +209,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END) AS consumo_min_trimestre_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END), 2) AS consumo_stddev_trimestre_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END), 2) AS consumo_var_trimestre_pasado,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado THEN df.ai END), 2) skewness_trimestre_pasado,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado) AS consumo_zero_trimestre_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_trimestre_pasado AND f.fin_trimestre_pasado) AS consumo_umbral_trimestre_pasado,
@@ -210,6 +226,9 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado THEN df.ai END) AS consumo_min_trimestre_anio_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado THEN df.ai END), 2) AS consumo_stddev_trimestre_anio_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado THEN df.ai END), 2) AS consumo_var_trimestre_anio_pasado,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado THEN df.ai END), 2) skewness_trimestre_anio_pasado,
+    -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado) AS consumo_zero_trimestre_anio_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_mismo_trimestre_anio_pasado AND f.fin_mismo_trimestre_anio_pasado) AS consumo_umbral_trimestre_anio_pasado,
     -- ratio dia noche
@@ -225,6 +244,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END) AS consumo_min_anio_actual,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END), 2) AS consumo_stddev_anio_actual,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END), 2) AS consumo_var_anio_actual,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual THEN df.ai END), 2) skewness_anio_actual,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual) AS consumo_zero_anio_actual,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_actual AND f.fin_anio_actual) AS consumo_umbral_anio_actual,
@@ -240,6 +261,8 @@ metricas_consumos AS (
     MIN(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END) AS consumo_min_anio_pasado,
     ROUND(STDDEV(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END), 2) AS consumo_stddev_anio_pasado,
     ROUND(VAR_SAMP(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END), 2) AS consumo_var_anio_pasado,
+    -- skweness
+    ROUND(SKEWNESS(CASE WHEN df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado THEN df.ai END), 2) skewness_anio_pasado,
     -- consumo zero y umbral
     COUNT(*) FILTER (WHERE df.ai = 0 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado) AS consumo_zero_anio_pasado,
     COUNT(*) FILTER (WHERE df.ai > 100 AND df.bc_decimal < 80 AND df.fh BETWEEN f.inicio_anio_pasado AND f.fin_anio_pasado) AS consumo_umbral_anio_pasado,
@@ -250,6 +273,8 @@ metricas_consumos AS (
   FROM datos_filtrados df, fechas_referencia f
   GROUP BY df.cups_sgc
 ),
+
+
 metricas_eventos AS (
   -- NUEVO: Métricas de días sin consumo con eventos por período
   SELECT
@@ -539,6 +564,7 @@ SELECT
   mc.consumo_min_semana_actual,
   mc.consumo_stddev_semana_actual,
   mc.consumo_var_semana_actual,
+  mc.skewness_semana_actual,
   mc.consumo_zero_semana_actual,
   mc.consumo_umbral_semana_actual,
   ROUND(mc.consumo_dia_semana_actual/NULLIF(mc.consumo_noche_semana_actual, 0), 2) as ratio_dia_noche_semana_actual,
@@ -548,8 +574,10 @@ SELECT
   mc.consumo_min_semana_pasada,
   mc.consumo_stddev_semana_pasada,
   mc.consumo_var_semana_pasada,
+  mc.skewness_semana_pasada,
   mc.consumo_zero_semana_pasada,
   mc.consumo_umbral_semana_pasada,
+  ROUND(((mc.consumo_suma_semana_actual - mc.consumo_suma_semana_pasada) / mc.consumo_suma_semana_pasada) * 100, 2) as pct_change_cons_semana_pasada,
   ROUND(mc.consumo_dia_semana_pasada/NULLIF(mc.consumo_noche_semana_pasada, 0), 2) as ratio_dia_noche_semana_pasada,
   mc.consumo_suma_semana_anio_pasado,
   mc.consumo_media_semana_anio_pasado,
@@ -557,8 +585,10 @@ SELECT
   mc.consumo_min_semana_anio_pasado,
   mc.consumo_stddev_semana_anio_pasado,
   mc.consumo_var_semana_anio_pasado,
+  mc.skewness_semana_anio_pasado,
   mc.consumo_zero_semana_anio_pasado,
   mc.consumo_umbral_semana_anio_pasado,
+  ROUND(((mc.consumo_suma_semana_actual - mc.consumo_suma_semana_anio_pasado) / mc.consumo_suma_semana_anio_pasado) * 100, 2) as pct_change_cons_misma_semana_anio_pasado,
   ROUND(mc.consumo_dia_semana_anio_pasado/NULLIF(mc.consumo_noche_semana_anio_pasado, 0), 2) as ratio_dia_noche_semana_anio_pasado,
   mc.consumo_suma_mes_actual,
   mc.consumo_media_mes_actual,
@@ -566,6 +596,7 @@ SELECT
   mc.consumo_min_mes_actual,
   mc.consumo_stddev_mes_actual,
   mc.consumo_var_mes_actual,
+  mc.skewness_mes_actual,
   mc.consumo_zero_mes_actual,
   mc.consumo_umbral_mes_actual,
   ROUND(mc.consumo_dia_mes_actual/NULLIF(mc.consumo_noche_mes_actual, 0), 2) as ratio_dia_noche_mes_actual,
@@ -575,8 +606,10 @@ SELECT
   mc.consumo_min_mes_pasado,
   mc.consumo_stddev_mes_pasado,
   mc.consumo_var_mes_pasado,
+  mc.skewness_mes_pasado,
   mc.consumo_zero_mes_pasado,
   mc.consumo_umbral_mes_pasado,
+  ROUND(((mc.consumo_suma_mes_actual - mc.consumo_suma_mes_pasado) / mc.consumo_suma_mes_pasado) * 100, 2) as pct_change_cons_mes_pasado,
   ROUND(mc.consumo_dia_mes_pasado/NULLIF(mc.consumo_noche_mes_pasado, 0), 2) as ratio_dia_noche_mes_pasado,
   mc.consumo_suma_mes_anio_pasado,
   mc.consumo_media_mes_anio_pasado,
@@ -584,8 +617,10 @@ SELECT
   mc.consumo_min_mes_anio_pasado,
   mc.consumo_stddev_mes_anio_pasado,
   mc.consumo_var_mes_anio_pasado,
+  mc.skewness_mes_anio_pasado,
   mc.consumo_zero_mes_anio_pasado,
   mc.consumo_umbral_mes_anio_pasado,
+  ROUND(((mc.consumo_suma_mes_actual - mc.consumo_suma_mes_anio_pasado) / mc.consumo_suma_mes_anio_pasado) * 100, 2) as pct_change_cons_mismo_mes_anio_pasado,
   ROUND(mc.consumo_dia_mes_anio_pasado/NULLIF(mc.consumo_noche_mes_anio_pasado, 0), 2) as ratio_dia_noche_mes_anio_pasado,
   mc.consumo_suma_trimestre_actual,
   mc.consumo_media_trimestre_actual,
@@ -593,6 +628,7 @@ SELECT
   mc.consumo_min_trimestre_actual,
   mc.consumo_stddev_trimestre_actual,
   mc.consumo_var_trimestre_actual,
+  mc.skewness_trimestre_actual,
   mc.consumo_zero_trimestre_actual,
   mc.consumo_umbral_trimestre_actual,
   ROUND(mc.consumo_dia_trimestre_actual/NULLIF(mc.consumo_noche_trimestre_actual, 0), 2) as ratio_dia_noche_trimestre_actual,
@@ -602,8 +638,10 @@ SELECT
   mc.consumo_min_trimestre_pasado,
   mc.consumo_stddev_trimestre_pasado,
   mc.consumo_var_trimestre_pasado,
+  mc.skewness_trimestre_pasado,
   mc.consumo_zero_trimestre_pasado,
   mc.consumo_umbral_trimestre_pasado,
+  ROUND(((mc.consumo_suma_trimestre_actual - mc.consumo_suma_trimestre_pasado) / mc.consumo_suma_trimestre_pasado) * 100, 2) as pct_change_cons_trimestre_pasado,
   ROUND(mc.consumo_dia_trimestre_pasado/NULLIF(mc.consumo_noche_trimestre_pasado, 0), 2) as ratio_dia_noche_trimestre_pasado,
   mc.consumo_suma_trimestre_anio_pasado,
   mc.consumo_media_trimestre_anio_pasado,
@@ -611,8 +649,10 @@ SELECT
   mc.consumo_min_trimestre_anio_pasado,
   mc.consumo_stddev_trimestre_anio_pasado,
   mc.consumo_var_trimestre_anio_pasado,
+  mc.skewness_trimestre_anio_pasado,
   mc.consumo_zero_trimestre_anio_pasado,
   mc.consumo_umbral_trimestre_anio_pasado,
+  ROUND(((mc.consumo_suma_trimestre_actual - mc.consumo_suma_trimestre_anio_pasado) / mc.consumo_suma_trimestre_anio_pasado) * 100, 2) as pct_change_cons_mismo_trimestre_anio_pasado,
   ROUND(mc.consumo_dia_trimestre_anio_pasado/NULLIF(mc.consumo_noche_trimestre_anio_pasado, 0), 2) as ratio_dia_noche_trimestre_anio_pasado,
   mc.consumo_suma_anio_actual,
   mc.consumo_media_anio_actual,
@@ -620,6 +660,7 @@ SELECT
   mc.consumo_min_anio_actual,
   mc.consumo_stddev_anio_actual,
   mc.consumo_var_anio_actual,
+  mc.skewness_anio_actual,
   mc.consumo_zero_anio_actual,
   mc.consumo_umbral_anio_actual,
   ROUND(mc.consumo_dia_anio_actual/NULLIF(mc.consumo_noche_anio_actual, 0), 2) as ratio_dia_noche_anio_actual,
@@ -629,8 +670,10 @@ SELECT
   mc.consumo_min_anio_pasado,
   mc.consumo_stddev_anio_pasado,
   mc.consumo_var_anio_pasado,
+  mc.skewness_anio_pasado,
   mc.consumo_zero_anio_pasado,
   mc.consumo_umbral_anio_pasado,
+  ROUND(((mc.consumo_suma_anio_actual - mc.consumo_suma_anio_pasado) / mc.consumo_suma_anio_pasado) * 100, 2) as pct_change_cons_anio_pasado,
   ROUND(mc.consumo_dia_anio_pasado/NULLIF(mc.consumo_noche_anio_pasado, 0), 2) as ratio_dia_noche_anio_pasado,
   
   -- MÉTRICAS DE EVENTOS (22 columnas)
@@ -667,7 +710,7 @@ SELECT
   me.eventos_dias_sin_consumo_con_evento_anio_pasado,
   me.eventos_dias_sin_consumo_con_evento_grupo4_anio_pasado,
   me.count_eventos_anio_pasado,
-
+--
   -- MÉTRICAS DE EVENTOS GRUPO 4 POR TIPO (126 columnas)
   -- Semana actual
   meg4.eventos_grupo4_tipo1_semana_actual,
@@ -846,6 +889,6 @@ SELECT
   meg4.eventos_grupo4_tipo14_anio_pasado
   
 FROM metricas_consumos mc
-LEFT JOIN metricas_eventos me ON mc.cups_sgc = me.cups_sgc
+JOIN metricas_eventos me ON mc.cups_sgc = me.cups_sgc
 LEFT JOIN metricas_eventos_grupo4_por_tipo meg4 ON mc.cups_sgc = meg4.cups_sgc				 
 ORDER BY mc.cups_sgc;
