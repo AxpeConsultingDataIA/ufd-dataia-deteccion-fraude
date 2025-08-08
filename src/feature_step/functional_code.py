@@ -129,7 +129,53 @@ class Neo4jDataLoader:
         if not records:
             print("⚠️ We couldn't find CONTADORES.")
 
-        df = pd.DataFrame(records)
+        # df = pd.DataFrame(records)
+
+        #Creamos datos simulados para que funcione
+
+        marcas = ["MARCA_1", "MARCA_2", "MARCA_3", "MARCA_4"]
+        modelos = ["MODELO_1", "MODELO_2", "MODELO_3"]
+        tipos_aparato = ["TIPO_1", "TIPO_2", "TIPO_3", "TIPO_4", "TIPO_5", "TIPO_6", "TIPO_7"]
+        estados = ["ACTIVO", "EN MANTENIMIENTO", "APAGADO", "DESCONECTADO", "SIN DATOS"]
+        fases = ["FASE_1", "FASE_2", "FASE_3"]
+        versiones = ["VERSION_1", "VERSION_2", "VERSION_3"]
+        estado_contrato = ["VIGENTE", "EXPIRADO", "OTROS"]
+        n = len(records)
+
+
+        start_date = pd.to_datetime("2022-01-01")
+        end_date = pd.to_datetime("2025-08-03")
+        fechas_aleatorias = pd.to_datetime(
+            np.random.randint(start_date.value // 10**9, end_date.value // 10**9, size=n), unit='s'
+        )
+
+
+
+        df = pd.DataFrame({
+            'nis_rad': np.random.randint(1000000, 10000000, size = n),
+            "numero_contador": np.random.randint(10000, 99999, size=n),
+            "marca": np.random.choice(marcas, size=n),
+            "modelo": np.random.choice(modelos, size=n),
+            "tipo_aparato": np.random.choice(tipos_aparato, size=n),
+            "telegest_activo": np.random.choice([True, False], size=n),
+            "estado": np.random.choice(estados, size=n),
+            "tension_nominal": np.random.randint(0, 10001, size=n),
+            "fases": np.random.choice(fases, size=n),
+            "potencia_maxima": np.random.randint(0, 20001, size=n),
+            "fecha_instalacion": fechas_aleatorias,
+            "version_firmware": np.random.choice(versiones, size=n),
+            "estado_contrato": np.random.choice(estado_contrato, size=n),
+            "num_mediciones": np.random.randint(0, 301, size=n),
+            "consumo_promedio": np.random.randint(1, 5000, size=n),
+            "variabilidad_consumo": np.random.randint(0, 3000, size=n)
+
+        })
+        df["consumo_maximo"] = df["consumo_promedio"] + np.random.randint(0, 5000 - df["consumo_promedio"] + 1)
+        df["consumo_maximo"] = df["consumo_maximo"].clip(upper=5000)
+
+        df["consumo_minimo"] = np.random.randint(0, df["consumo_promedio"] + 1)
+
+
 
         # Add calculated features
         # First, we are going to modify the fecha_instalacion date into a datetime format.
@@ -169,7 +215,44 @@ class Neo4jDataLoader:
         result = session.run(query)
         records = [dict(record) for record in result]
 
-        df = pd.DataFrame(records)
+        # df = pd.DataFrame(records)
+        estado_contrato = ["VIGENTE", "EXPIRADO", "OTROS"]
+        tipo_suministro = ["TIPO_SUM_1", "TIPO_SUM_2", "TIPO_SUM_3", "TIPO_SUM_4", "TIPO_SUM_5"]
+        fases_suministro = ["FASE_SUM_1", "FASE_SUM_2", "FASE_SUM_3"]
+        n = len(records)
+
+        # Generar fechas aleatorias entre 2022-01-01 y 2025-08-03
+        start_date = pd.to_datetime("2022-01-01")
+        end_date = pd.to_datetime("2025-08-03")
+        fecha_alta = pd.to_datetime(
+            np.random.randint(start_date.value // 10**9, end_date.value // 10**9, size=n), unit='s'
+        )
+
+        # Generar códigos alfanuméricos tipo CNAE: una letra + 7 cifras
+        def generar_cnae():
+            letra = random.choice(string.ascii_uppercase)
+            cifras = f"{random.randint(0, 9999999):07d}"
+            return letra + cifras
+
+        cnae_codigos = [generar_cnae() for _ in range(n)]
+
+        # Crear el DataFrame
+        df = pd.DataFrame({
+            "nis_rad": np.random.randint(1000000, 10000000, size=n),
+            "fecha_alta": fecha_alta,
+            "estado_contrato": np.random.choice(estado_contrato, size=n),
+            "tipo_suministro": np.random.choice(tipo_suministro, size=n),
+            "potencia_contratada": np.random.randint(0, 301, size=n),
+            "potencia_maxima_demandada": np.random.randint(0, 301, size=n),
+            "tarifa_activa": np.random.choice([True, False], size=n),
+            "tension_suministro": np.random.randint(0, 10001, size=n),
+            "fases_suministro": np.random.choice(fases_suministro, size=n),
+            "cnae": cnae_codigos,
+            "comercializadora_codigo": np.random.randint(300, 501, size=n)
+        })
+
+
+
         df["node_id"] = df["nis_rad"]
 
         df.reset_index(drop=True, inplace=True)
@@ -190,7 +273,17 @@ class Neo4jDataLoader:
         result = session.run(query)
         records = [dict(record) for record in result]
 
-        df = pd.DataFrame(records)
+        # df = pd.DataFrame(records)
+        n = len(records)
+
+        nombres_comercializadora = ["IBERDROLA", "ENDESA", "NATURGY"]
+
+        # Crear el DataFrame
+        df = pd.DataFrame({
+            "codigo_comercializadora": np.random.randint(300, 501, size=n),
+            "nombre_comercializadora": np.random.choice(nombres_comercializadora, size=n)
+        })
+
         df["node_id"] = df["codigo_comercializadora"]
 
         df.reset_index(drop=True, inplace=True)
@@ -213,8 +306,37 @@ class Neo4jDataLoader:
 
         result = session.run(query)
         records = [dict(record) for record in result]
+        n = len(records)
 
-        df = pd.DataFrame(records)
+        # df = pd.DataFrame(records)
+        # Número de registros
+        n = 1000
+
+        # Coordenadas decimales
+        coordenada_x = np.round(np.random.uniform(0, 180, size=n), 6)
+        coordenada_y = np.round(np.random.uniform(0, 90, size=n), 6)
+
+        # Código postal: dos primeras cifras entre 01 y 52, tres últimas entre 000 y 999
+        primeras_dos = np.random.randint(1, 53, size=n)
+        ultimas_tres = np.random.randint(0, 1000, size=n)
+
+        # Formatear código postal como string de 5 cifras
+        codigo_postal = [f"{d:02d}{t:03d}" for d, t in zip(primeras_dos, ultimas_tres)]
+
+        # Área de ejecución
+        area_ejecucion = np.random.choice(["AREA_1", "AREA_2", "AREA_3"], size=n)
+
+        # Node ID
+        node_id = [f"{x}_{y}" for x, y in zip(coordenada_x, coordenada_y)]
+
+        # Crear el DataFrame
+        df = pd.DataFrame({
+            "coordenada_x": coordenada_x,
+            "coordenada_y": coordenada_y,
+            "codigo_postal": codigo_postal,
+            "area_ejecucion": area_ejecucion,
+            "node_id": node_id
+        })
 
         df.reset_index(drop=True, inplace=True)
         return df
