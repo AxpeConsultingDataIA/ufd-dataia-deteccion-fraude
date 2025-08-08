@@ -58,8 +58,7 @@ datos_filtrados AS (
         )
         AND a.fh >= CURRENT_DATE - INTERVAL '15' MONTH
         AND b.origen = 'ZEUS'
-        AND b.ccaa_sgc in ('MADRID', 'CASTILLA LA MANCHA')
-        AND b.municipio_sgc IN ('ALCALA DE HENARES', 'PUERTOLLANO')  
+        AND b.provincia_sgc in ('TOLEDO','CIUDAD REAL')
 ),
 datos_por_dia AS (
   -- Base para las métricas de eventos: días sin consumo con eventos por día
