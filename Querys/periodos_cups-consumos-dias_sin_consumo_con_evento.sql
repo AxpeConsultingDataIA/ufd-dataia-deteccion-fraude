@@ -1,4 +1,5 @@
 -- Fechas de referencia
+
 WITH fechas_referencia AS (
   SELECT 
         CURRENT_DATE AS hoy,
