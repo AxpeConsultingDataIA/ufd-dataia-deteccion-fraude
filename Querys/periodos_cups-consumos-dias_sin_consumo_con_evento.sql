@@ -63,6 +63,7 @@ datos_filtrados AS (
         AND grd.origen = 'ZEUS'
         AND grd.provincia_sgc in ('TOLEDO','CIUDAD REAL')
         AND FROM_BASE(s02.bc, 16) < 80
+        AND s02.ai between 0 and (grd.pot_ctto_sgc*1.5)
 ),
 datos_por_dia AS (
   -- Base para las métricas de eventos: días sin consumo con eventos por día
