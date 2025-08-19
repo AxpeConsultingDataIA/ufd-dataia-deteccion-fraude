@@ -19,16 +19,39 @@ class FraudEvaluator:
         self.model = model.to(device)
         self.device = device
         
-    def predict(self, data: Data) -> np.ndarray:
+    # def predict(self, data: Data) -> np.ndarray:
+    #     """
+    #     Hace predicciones
+    #     """
+    #     self.model.eval()
+    #     with torch.no_grad():
+    #         out = self.model(data.x, data.edge_index)
+    #         pred = out.argmax(dim=1)
+    #     return pred.cpu().numpy()
+    
+    def predict(self, data):
         """
-        Hace predicciones
+        Hace predicciones basadas en umbrales de probabilidad
         """
         self.model.eval()
         with torch.no_grad():
-            out = self.model(data.x, data.edge_index)
-            pred = out.argmax(dim=1)
+            out = self.model(data.x_dict, data.edge_index_dict)
+            proba = F.softmax(out, dim=1)
+
+            # Aplicar lógica de umbrales vectorizada
+            pred = torch.zeros(proba.shape[0], dtype=torch.long)
+
+            # Si probabilidad en posición 1 > 0.75 → clase 1
+            pred[proba[:, 1] > 0.75] = 1
+
+            # Si probabilidad en posición 1 entre 0.5 y 0.75 → clase 2
+            mask_intermediate = (proba[:, 1] >= 0.5) & (proba[:, 1] <= 0.75)
+            pred[mask_intermediate] = 2
+
+            # En caso contrario ya está en 0 por defecto
+        
         return pred.cpu().numpy()
-    
+
     def predict_proba(self, data: Data) -> np.ndarray:
         """
         Obtiene probabilidades
@@ -50,7 +73,8 @@ class FraudEvaluator:
         y_true = data.y[test_indices].cpu().numpy()
         y_pred = predictions[test_indices]
         y_proba = probabilities[test_indices]
-        
+        print(f"Predicciones: {y_pred}, Verdaderos: {y_true}, Probabilidades: {y_proba}")
+
         # Métricas
         results = {
             'classification_report': classification_report(y_true, y_pred, 
@@ -141,7 +165,8 @@ class HeterogeneousEvaluator:
         y_true = data['contador'].y[test_indices].cpu().numpy()
         y_pred = predictions[test_indices]
         y_proba = probabilities[test_indices]
-        
+        print(f"Predicciones: {list(set(y_pred))}, Verdaderos: {list(set(y_true))}, Probabilidades: {y_proba}")
+
         # Métricas
         results = {
             'classification_report': classification_report(
