@@ -1,34 +1,32 @@
 WITH 
--- ✅ SECCIÓN 1: GRID DE CONTADORES CON FILTROS Y EXPEDIENTES
-grid_contadores_filtrados AS (
+-- ✅ PASO 1: GRID BASE CON FILTROS CRÍTICOS TEMPRANOS
+grid_base AS (
   SELECT 
     grd.cnt_sgc,
     grd.cups_sgc,
     CAST(SUBSTR(grd.cups_sgc, 12, 7) AS INTEGER) AS nis_rad,
     grd.pot_ctto_sgc,
     
-    -- ✅ INFORMACIÓN DE EXPEDIENTES PREVIOS
+    -- Información de expedientes simplificada
     exp.fecha_inicio_anomalia,
     exp.fecha_fin_anomalia,
     exp.tipo_anomalia,
-    exp.estado,  -- ✅ CAMPO CORRECTO
+    exp.estado,
     
-    -- ✅ ETIQUETAS DE FRAUDE PREVIO
-    CASE 
-      WHEN exp.cups IS NOT NULL THEN 'SI'
-      ELSE 'NO'
-    END as tuvo_fraude_previo,
+    CASE WHEN exp.cups IS NOT NULL THEN 'SI' ELSE 'NO' END as tuvo_fraude_previo,
     
+    -- Fecha límite optimizada con TRY para evitar errores
     CASE 
-      WHEN exp.fecha_fin_anomalia IS NOT NULL THEN exp.fecha_fin_anomalia
+      WHEN exp.fecha_fin_anomalia IS NOT NULL THEN 
+        TRY(date_parse(exp.fecha_fin_anomalia, '%d/%m/%Y %H:%i:%s'))
       ELSE NULL
-    END as fecha_limite_exclusion,
+    END as fecha_limite_timestamp,
     
-    -- ✅ CLASIFICACIÓN DEL CONTADOR
+    -- Estado de fraude simplificado
     CASE 
       WHEN exp.cups IS NULL THEN 'LIMPIO'
       WHEN exp.fecha_fin_anomalia IS NULL THEN 'FRAUDE_ACTIVO'
-      WHEN date_parse(exp.fecha_fin_anomalia, '%d/%m/%Y %H:%i:%s') < CURRENT_TIMESTAMP THEN 'FRAUDE_RESUELTO'
+      WHEN TRY(date_parse(exp.fecha_fin_anomalia, '%d/%m/%Y %H:%i:%s')) < CURRENT_TIMESTAMP THEN 'FRAUDE_RESUELTO'
       ELSE 'FRAUDE_PENDIENTE'
     END as estado_fraude
     
@@ -37,93 +35,77 @@ grid_contadores_filtrados AS (
     ON grd.cups_sgc = exp.cups
   WHERE grd.origen = 'ZEUS'
     AND grd.provincia_sgc IN ('TOLEDO','CIUDAD REAL')
-    AND grd.estado_contrato_sgc = 'SRVSTAT001' -- estado del contrato vigente
+    AND grd.estado_contrato_sgc = 'SRVSTAT001'
 ),
 
--- ✅ SECCIÓN 2: CONSUMOS DE ESOS CONTADORES (CON FILTRO DE EXPEDIENTES)
-consumos_contadores AS (
-  SELECT
-    s02.cnt_id,
-    s02.fh,
-    s02.ai,
+-- ✅ PASO 2: EVENTOS GRUPO 4 CON FILTROS OPTIMIZADOS
+eventos_validos AS (
+  SELECT 
+    s09.cnt_id,
+    s09.fh as fecha_hora_evento,
+    s09.c as tipo_evento,
     grd.cups_sgc,
     grd.nis_rad,
     grd.tuvo_fraude_previo,
     grd.estado_fraude,
-    grd.fecha_limite_exclusion
-  FROM transformation_esir.s02 s02 
-  INNER JOIN grid_contadores_filtrados grd 
-    ON s02.cnt_id = grd.cnt_sgc
-  WHERE s02.partition_0 IN (
-            CAST(YEAR(CURRENT_DATE) AS VARCHAR),
-            CAST(YEAR(CURRENT_DATE - INTERVAL '1' YEAR) AS VARCHAR)
-        )
-        AND s02.fh >= CURRENT_DATE - INTERVAL '15' MONTH
-        AND FROM_BASE(s02.bc, 16) < 80
-        AND s02.ai BETWEEN 0 AND (grd.pot_ctto_sgc * 1.5)
-        -- ✅ FILTRO CLAVE: EXCLUIR CONSUMOS DURANTE ANOMALÍA CONOCIDA
-        AND (
-          grd.fecha_limite_exclusion IS NULL  -- Sin expedientes previos
-          OR s02.fh > date_parse(grd.fecha_limite_exclusion, '%d/%m/%Y %H:%i:%s')  -- O consumos posteriores al fin de anomalía
-        )
-),
-
--- ✅ SECCIÓN 3: EVENTOS GRUPO 4 (CON FILTRO DE EXPEDIENTES)
-eventos_grupo4_base AS (
-  SELECT DISTINCT
-    s09.cnt_id,
-    s09.fh as fecha_hora_evento,
-    s09.et as grupo_evento,
-    s09.c as tipo_evento
+    grd.fecha_limite_timestamp,
+    
+    -- Cálculo de días desde anomalía previa
+    CASE 
+      WHEN grd.fecha_limite_timestamp IS NOT NULL THEN
+        date_diff('day', grd.fecha_limite_timestamp, s09.fh)
+      ELSE NULL
+    END as dias_desde_fin_anomalia_previa
+    
   FROM transformation_esir.s09 s09
-  INNER JOIN grid_contadores_filtrados grd
-    ON s09.cnt_id = grd.cnt_sgc
-  WHERE s09.et = 4
+  INNER JOIN grid_base grd ON s09.cnt_id = grd.cnt_sgc
+  WHERE s09.et = 4  -- Solo eventos grupo 4
     AND s09.partition_0 IN (
         CAST(YEAR(CURRENT_DATE) AS VARCHAR),
         CAST(YEAR(CURRENT_DATE - INTERVAL '1' YEAR) AS VARCHAR)
     )
     AND s09.fh >= CURRENT_DATE - INTERVAL '15' MONTH
-    -- ✅ FILTRO CLAVE: EXCLUIR EVENTOS DURANTE ANOMALÍA CONOCIDA
+    AND s09.fh >= CURRENT_DATE - INTERVAL '12' MONTH  -- Reducir ventana para optimizar
+    -- Filtro de exclusión optimizado
     AND (
-      grd.fecha_limite_exclusion IS NULL  -- Sin expedientes previos
-      OR s09.fh > date_parse(grd.fecha_limite_exclusion, '%d/%m/%Y %H:%i:%s')  -- O eventos posteriores al fin de anomalía
+      grd.fecha_limite_timestamp IS NULL 
+      OR s09.fh > grd.fecha_limite_timestamp
     )
 ),
 
--- ✅ SECCIÓN 4: EVENTOS CON INFO DE CONTADORES (INCLUYENDO EXPEDIENTES)
-eventos_con_contador_info AS (
-  SELECT 
-    eg4.*,
+-- ✅ PASO 3: CONSUMOS BASE CON FILTROS TEMPRANOS
+consumos_base AS (
+  SELECT
+    s02.cnt_id,
+    s02.fh,
+    s02.ai,
     grd.cups_sgc,
-    grd.nis_rad,
-    grd.tuvo_fraude_previo,
-    grd.estado_fraude,
-    grd.fecha_limite_exclusion,
-    
-    -- ✅ INFORMACIÓN CONTEXTUAL
-    CASE 
-      WHEN grd.fecha_limite_exclusion IS NOT NULL THEN
-        date_diff('day', date_parse(grd.fecha_limite_exclusion, '%d/%m/%Y %H:%i:%s'), eg4.fecha_hora_evento)
-      ELSE NULL
-    END as dias_desde_fin_anomalia_previa
-    
-  FROM eventos_grupo4_base eg4
-  INNER JOIN grid_contadores_filtrados grd
-    ON eg4.cnt_id = grd.cnt_sgc
+    grd.fecha_limite_timestamp
+  FROM transformation_esir.s02 s02 
+  INNER JOIN grid_base grd ON s02.cnt_id = grd.cnt_sgc
+  WHERE s02.partition_0 IN (
+        CAST(YEAR(CURRENT_DATE) AS VARCHAR),
+        CAST(YEAR(CURRENT_DATE - INTERVAL '1' YEAR) AS VARCHAR)
+    )
+    AND s02.fh >= CURRENT_DATE - INTERVAL '15' MONTH
+    AND FROM_BASE(s02.bc, 16) < 80
+    AND s02.ai BETWEEN 0 AND (grd.pot_ctto_sgc * 1.5)
+    AND s02.ai > 0  -- Solo consumos positivos
+    -- Filtro de exclusión
+    AND (
+      grd.fecha_limite_timestamp IS NULL 
+      OR s02.fh > grd.fecha_limite_timestamp
+    )
 ),
 
--- ✅ SECCIÓN 5: INSPECCIONES (USANDO GRID_CONTADORES YA FILTRADOS)
-inspecciones_contadores AS (
-  SELECT 
+-- ✅ PASO 4: INSPECCIONES SIMPLIFICADAS
+inspecciones_activas AS (
+  SELECT DISTINCT
     insp.nis_rad,
     insp.fecha_ini_os,
-    insp.fuce,
-    insp.tip_os,
-    insp.descripcion_os
+    insp.fuce
   FROM transformation_esir.ooss01 insp
-  INNER JOIN grid_contadores_filtrados grd
-    ON insp.nis_rad = grd.nis_rad  -- ✅ USANDO GRID YA FILTRADO
+  INNER JOIN grid_base grd ON insp.nis_rad = grd.nis_rad
   WHERE insp.partition_0 IN (
         CAST(YEAR(CURRENT_DATE) AS VARCHAR),
         CAST(YEAR(CURRENT_DATE - INTERVAL '1' YEAR) AS VARCHAR)
@@ -132,146 +114,155 @@ inspecciones_contadores AS (
     AND insp.cer = 'ACTSTA0014'
 ),
 
--- ✅ SECCIÓN 6: EVENTOS FILTRADOS (SIN INSPECCIONES)
-eventos_sin_inspeccion AS (
+-- ✅ PASO 5: EVENTOS SIN INSPECCIÓN (OPTIMIZADO)
+eventos_limpios AS (
   SELECT 
-    eci.*
-  FROM eventos_con_contador_info eci
-  LEFT JOIN inspecciones_contadores insp
-    ON eci.nis_rad = insp.nis_rad
-    AND DATE(eci.fecha_hora_evento) BETWEEN insp.fecha_ini_os AND insp.fuce
-  WHERE insp.nis_rad IS NULL  -- ✅ EXCLUYE EVENTOS CON INSPECCIONES
+    ev.*
+  FROM eventos_validos ev
+  LEFT JOIN inspecciones_activas insp
+    ON ev.nis_rad = insp.nis_rad
+    AND DATE(ev.fecha_hora_evento) BETWEEN insp.fecha_ini_os AND insp.fuce
+  WHERE insp.nis_rad IS NULL
 ),
 
--- ✅ SECCIÓN 7: CONSUMOS PRE-EVENTO (CON INFO DE EXPEDIENTES)
-consumos_pre_por_evento AS (
+-- ✅ PASO 6: ANÁLISIS PRE/POST EN UNA SOLA PASADA
+analisis_consumo_por_evento AS (
   SELECT 
-    es.cnt_id,
-    es.cups_sgc,
-    es.nis_rad,
-    DATE_TRUNC('hour', es.fecha_hora_evento) as fecha_hora_evento,
-    es.tipo_evento,
-    es.tuvo_fraude_previo,
-    es.estado_fraude,
-    es.dias_desde_fin_anomalia_previa,
+    el.cnt_id,
+    el.cups_sgc,
+    el.nis_rad,
+    DATE_TRUNC('hour', el.fecha_hora_evento) as fecha_hora_evento,
+    el.tipo_evento,
+    el.tuvo_fraude_previo,
+    el.estado_fraude,
+    el.dias_desde_fin_anomalia_previa,
     
-    COUNT(cc.ai) as registros_pre_90d,
-    AVG(cc.ai) as promedio_pre_90d,
-    approx_percentile(cc.ai, 0.5) as mediana_pre_90d,
-    MIN(cc.fh) as fecha_min_pre,
-    MAX(cc.fh) as fecha_max_pre
+    -- ========================================
+    -- MÉTRICAS PRE-EVENTO (90 días antes)
+    -- ========================================
+    COUNT(CASE 
+      WHEN cb.fh >= el.fecha_hora_evento - INTERVAL '90' DAY 
+       AND cb.fh < el.fecha_hora_evento 
+      THEN cb.ai 
+    END) as registros_pre_90d,
     
-  FROM eventos_sin_inspeccion es
-  INNER JOIN consumos_contadores cc
-    ON es.cnt_id = cc.cnt_id
-    AND cc.fh >= es.fecha_hora_evento - INTERVAL '90' DAY
-    AND cc.fh < es.fecha_hora_evento
-    AND cc.ai > 0
-  GROUP BY es.cnt_id, es.cups_sgc, es.nis_rad, DATE_TRUNC('hour', es.fecha_hora_evento), 
-           es.tipo_evento, es.tuvo_fraude_previo, es.estado_fraude, es.dias_desde_fin_anomalia_previa
+    AVG(CASE 
+      WHEN cb.fh >= el.fecha_hora_evento - INTERVAL '90' DAY 
+       AND cb.fh < el.fecha_hora_evento 
+      THEN cb.ai 
+    END) as promedio_pre_90d,
+    
+    APPROX_PERCENTILE(CASE 
+      WHEN cb.fh >= el.fecha_hora_evento - INTERVAL '90' DAY 
+       AND cb.fh < el.fecha_hora_evento 
+      THEN cb.ai 
+    END, 0.5) as mediana_pre_90d,
+    
+    MIN(CASE 
+      WHEN cb.fh >= el.fecha_hora_evento - INTERVAL '90' DAY 
+       AND cb.fh < el.fecha_hora_evento 
+      THEN cb.fh 
+    END) as fecha_min_pre,
+    
+    MAX(CASE 
+      WHEN cb.fh >= el.fecha_hora_evento - INTERVAL '90' DAY 
+       AND cb.fh < el.fecha_hora_evento 
+      THEN cb.fh 
+    END) as fecha_max_pre,
+    
+    -- ========================================
+    -- MÉTRICAS POST-EVENTO (90 días después)
+    -- ========================================
+    COUNT(CASE 
+      WHEN cb.fh > el.fecha_hora_evento 
+       AND cb.fh <= el.fecha_hora_evento + INTERVAL '90' DAY 
+      THEN cb.ai 
+    END) as registros_post_90d,
+    
+    AVG(CASE 
+      WHEN cb.fh > el.fecha_hora_evento 
+       AND cb.fh <= el.fecha_hora_evento + INTERVAL '90' DAY 
+      THEN cb.ai 
+    END) as promedio_post_90d,
+    
+    APPROX_PERCENTILE(CASE 
+      WHEN cb.fh > el.fecha_hora_evento 
+       AND cb.fh <= el.fecha_hora_evento + INTERVAL '90' DAY 
+      THEN cb.ai 
+    END, 0.5) as mediana_post_90d,
+    
+    MIN(CASE 
+      WHEN cb.fh > el.fecha_hora_evento 
+       AND cb.fh <= el.fecha_hora_evento + INTERVAL '90' DAY 
+      THEN cb.fh 
+    END) as fecha_min_post,
+    
+    MAX(CASE 
+      WHEN cb.fh > el.fecha_hora_evento 
+       AND cb.fh <= el.fecha_hora_evento + INTERVAL '90' DAY 
+      THEN cb.fh 
+    END) as fecha_max_post
+    
+  FROM eventos_limpios el
+  INNER JOIN consumos_base cb
+    ON el.cnt_id = cb.cnt_id
+    AND cb.fh BETWEEN el.fecha_hora_evento - INTERVAL '90' DAY 
+                  AND el.fecha_hora_evento + INTERVAL '90' DAY
+  GROUP BY 
+    el.cnt_id, el.cups_sgc, el.nis_rad, 
+    DATE_TRUNC('hour', el.fecha_hora_evento), el.tipo_evento,
+    el.tuvo_fraude_previo, el.estado_fraude, el.dias_desde_fin_anomalia_previa
 ),
 
--- ✅ SECCIÓN 8: CONSUMOS POST-EVENTO
-consumos_post_por_evento AS (
+-- ✅ PASO 7: CÁLCULOS DE FRAUDE Y RANKING
+analisis_fraude_final AS (
   SELECT 
-    es.cnt_id,
-    es.cups_sgc,
-    es.nis_rad,
-    DATE_TRUNC('hour', es.fecha_hora_evento) as fecha_hora_evento,
-    es.tipo_evento,
-    
-    COUNT(cc.ai) as registros_post_90d,
-    AVG(cc.ai) as promedio_post_90d,
-    approx_percentile(cc.ai, 0.5) as mediana_post_90d,
-    MIN(cc.fh) as fecha_min_post,
-    MAX(cc.fh) as fecha_max_post
-    
-  FROM eventos_sin_inspeccion es
-  INNER JOIN consumos_contadores cc
-    ON es.cnt_id = cc.cnt_id
-    AND cc.fh > es.fecha_hora_evento
-    AND cc.fh <= es.fecha_hora_evento + INTERVAL '90' DAY
-    AND cc.ai > 0
-  GROUP BY es.cnt_id, es.cups_sgc, es.nis_rad, DATE_TRUNC('hour', es.fecha_hora_evento), es.tipo_evento
-),
-
--- ✅ SECCIÓN 9: ANÁLISIS DE FRAUDE (CON CONTEXTO DE EXPEDIENTES)
-analisis_fraude AS (
-  SELECT 
-    pre.cnt_id,
-    pre.cups_sgc,
-    pre.nis_rad,
-    pre.fecha_hora_evento,
-    pre.tipo_evento,
-    
-    -- ✅ CONTEXTO DE EXPEDIENTES
-    pre.tuvo_fraude_previo,
-    pre.estado_fraude,
-    pre.dias_desde_fin_anomalia_previa,
-    
-    -- Datos PRE
-    pre.registros_pre_90d,
-    pre.promedio_pre_90d,
-    pre.mediana_pre_90d,
-    pre.fecha_min_pre,
-    pre.fecha_max_pre,
-    
-    -- Datos POST
-    post.registros_post_90d,
-    post.promedio_post_90d,
-    post.mediana_post_90d,
-    post.fecha_min_post,
-    post.fecha_max_post,
+    *,
     
     -- Reducciones
     CASE 
-      WHEN pre.promedio_pre_90d > 0 THEN 
-        ROUND(((pre.promedio_pre_90d - post.promedio_post_90d) / pre.promedio_pre_90d) * 100, 2)
+      WHEN promedio_pre_90d > 0 THEN 
+        ROUND(((promedio_pre_90d - promedio_post_90d) / promedio_pre_90d) * 100, 2)
       ELSE NULL 
     END as reduccion_promedio_pct,
     
     CASE 
-      WHEN pre.mediana_pre_90d > 0 THEN 
-        ROUND(((pre.mediana_pre_90d - post.mediana_post_90d) / pre.mediana_pre_90d) * 100, 2)
+      WHEN mediana_pre_90d > 0 THEN 
+        ROUND(((mediana_pre_90d - mediana_post_90d) / mediana_pre_90d) * 100, 2)
       ELSE NULL 
     END as reduccion_mediana_pct,
     
-    -- ✅ Score con penalización por reincidencia
+    -- Score con penalización por reincidencia
     CASE 
-      WHEN pre.promedio_pre_90d > 0 AND pre.mediana_pre_90d > 0 THEN
+      WHEN promedio_pre_90d > 0 AND mediana_pre_90d > 0 THEN
         ROUND((
-          (COALESCE(((pre.promedio_pre_90d - post.promedio_post_90d) / pre.promedio_pre_90d) * 100, 0)) * 0.5 +
-          (COALESCE(((pre.mediana_pre_90d - post.mediana_post_90d) / pre.mediana_pre_90d) * 100, 0)) * 0.5
+          (COALESCE(((promedio_pre_90d - promedio_post_90d) / promedio_pre_90d) * 100, 0)) * 0.5 +
+          (COALESCE(((mediana_pre_90d - mediana_post_90d) / mediana_pre_90d) * 100, 0)) * 0.5
         ) * 
-        -- ✅ MULTIPLICADOR POR REINCIDENCIA
-        CASE 
-          WHEN pre.tuvo_fraude_previo = 'SI' THEN 1.3  -- 30% más grave si ya tuvo fraude
-          ELSE 1.0
-        END, 2)
+        CASE WHEN tuvo_fraude_previo = 'SI' THEN 1.3 ELSE 1.0 END, 2)
       ELSE NULL
     END as score_fraude_combinado,
     
     -- Consistencia
     CASE 
       WHEN ABS(
-        COALESCE(((pre.promedio_pre_90d - post.promedio_post_90d) / pre.promedio_pre_90d) * 100, 0) -
-        COALESCE(((pre.mediana_pre_90d - post.mediana_post_90d) / pre.mediana_pre_90d) * 100, 0)
+        COALESCE(((promedio_pre_90d - promedio_post_90d) / promedio_pre_90d) * 100, 0) -
+        COALESCE(((mediana_pre_90d - mediana_post_90d) / mediana_pre_90d) * 100, 0)
       ) <= 10 THEN 'CONSISTENTE'
       WHEN ABS(
-        COALESCE(((pre.promedio_pre_90d - post.promedio_post_90d) / pre.promedio_pre_90d) * 100, 0) -
-        COALESCE(((pre.mediana_pre_90d - post.mediana_post_90d) / pre.mediana_pre_90d) * 100, 0)
+        COALESCE(((promedio_pre_90d - promedio_post_90d) / promedio_pre_90d) * 100, 0) -
+        COALESCE(((mediana_pre_90d - mediana_post_90d) / mediana_pre_90d) * 100, 0)
       ) <= 25 THEN 'MODERADA'
       ELSE 'DIVERGENTE'
     END as consistencia_metricas
     
-  FROM consumos_pre_por_evento pre
-  INNER JOIN consumos_post_por_evento post 
-    ON pre.cnt_id = post.cnt_id 
-    AND pre.fecha_hora_evento = post.fecha_hora_evento
+  FROM analisis_consumo_por_evento
+  WHERE registros_pre_90d >= 30  -- Mínimo de datos para análisis confiable
+    AND registros_post_90d >= 30
 ),
 
--- ✅ SECCIÓN 10: RANKING POR CONTADOR
-ranking_por_contador AS (
+-- ✅ PASO 8: RANKING OPTIMIZADO
+ranking_final AS (
   SELECT 
     *,
     ROW_NUMBER() OVER (
@@ -281,12 +272,13 @@ ranking_por_contador AS (
         reduccion_mediana_pct DESC,
         fecha_hora_evento DESC
     ) as ranking
-  FROM analisis_fraude
+  FROM analisis_fraude_final
   WHERE score_fraude_combinado IS NOT NULL
+    AND score_fraude_combinado >= 5  -- Filtrar casos con score muy bajo
 )
 
 -- ========================================
--- RESULTADO FINAL CON EXPEDIENTES
+-- RESULTADO FINAL OPTIMIZADO
 -- ========================================
 SELECT 
   cnt_id,
@@ -295,20 +287,20 @@ SELECT
   fecha_hora_evento,
   tipo_evento,
   
-  -- ✅ CONTEXTO DE EXPEDIENTES PREVIOS
+  -- Contexto de expedientes
   tuvo_fraude_previo,
   estado_fraude,
   dias_desde_fin_anomalia_previa,
   
-  -- Métricas PRE
+  -- Métricas PRE (redondeadas)
   registros_pre_90d,
-  ROUND(promedio_pre_90d, 2) as promedio_pre,
-  ROUND(mediana_pre_90d, 2) as mediana_pre,
+  ROUND(COALESCE(promedio_pre_90d, 0), 2) as promedio_pre,
+  ROUND(COALESCE(mediana_pre_90d, 0), 2) as mediana_pre,
   
-  -- Métricas POST
+  -- Métricas POST (redondeadas)
   registros_post_90d,
-  ROUND(promedio_post_90d, 2) as promedio_post,
-  ROUND(mediana_post_90d, 2) as mediana_post,
+  ROUND(COALESCE(promedio_post_90d, 0), 2) as promedio_post,
+  ROUND(COALESCE(mediana_post_90d, 0), 2) as mediana_post,
   
   -- Análisis de fraude
   reduccion_promedio_pct,
@@ -316,10 +308,11 @@ SELECT
   score_fraude_combinado,
   consistencia_metricas,
   
-  -- ✅ Clasificación especial para reincidentes
+  -- Clasificación optimizada
   CASE 
     WHEN tuvo_fraude_previo = 'SI' AND score_fraude_combinado >= 30 THEN 'REINCIDENTE_ALTO'
     WHEN tuvo_fraude_previo = 'SI' AND score_fraude_combinado >= 20 THEN 'REINCIDENTE_MEDIO'
+    WHEN tuvo_fraude_previo = 'SI' THEN 'REINCIDENTE_BAJO'
     WHEN score_fraude_combinado >= 50 AND consistencia_metricas = 'CONSISTENTE' THEN 'FRAUDE_MUY_PROBABLE'
     WHEN score_fraude_combinado >= 30 AND consistencia_metricas IN ('CONSISTENTE', 'MODERADA') THEN 'FRAUDE_PROBABLE'
     WHEN score_fraude_combinado >= 20 THEN 'SOSPECHOSO'
@@ -327,15 +320,18 @@ SELECT
     ELSE 'BAJO_RIESGO'
   END as clasificacion_final,
   
-  -- Fechas
+  -- Fechas de contexto
   fecha_min_pre,
   fecha_max_pre,
   fecha_min_post,
-  fecha_max_post
+  fecha_max_post,
   
-FROM ranking_por_contador
-WHERE ranking = 1
+  -- Información adicional
+  ranking
+  
+FROM ranking_final
+WHERE ranking = 1  -- Solo el mejor evento por contador
 ORDER BY 
-  tuvo_fraude_previo DESC,  -- ✅ Primero los reincidentes
+  CASE WHEN tuvo_fraude_previo = 'SI' THEN 0 ELSE 1 END,  -- Reincidentes primero
   score_fraude_combinado DESC,
   reduccion_mediana_pct DESC;
