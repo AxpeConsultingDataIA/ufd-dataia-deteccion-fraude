@@ -205,21 +205,3 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-/data
-/features
-/informes
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-/scoring
-/metrics
-/models
-=======
-/metrics
-/models
-/scoring
->>>>>>> Stashed changes
-=======
-/metrics
-/models
-/scoring
->>>>>>> Stashed changes
