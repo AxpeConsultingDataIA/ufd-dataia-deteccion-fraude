@@ -208,6 +208,12 @@ __marimo__/
 /data
 /features
 /informes
+<<<<<<< Updated upstream
 /scoring
 /metrics
 /models
+=======
+/metrics
+/models
+/scoring
+>>>>>>> Stashed changes
