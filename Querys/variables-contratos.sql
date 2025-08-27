@@ -6,10 +6,10 @@ WITH base AS (
         MAX(last_bill_date) AS last_bill_date,
         MAX(modification_date) AS last_modification_date,
         MAX(from_date) AS last_contract_initial_date,
-        MAX(contracted_power_control) AS current_contracted_power,
-        COUNT(DISTINCT cod_modification_type) AS num_distinct_mod_types,
-        COUNT( distinct cod_contract) AS num_contracts,
-        SUM(CASE WHEN cod_drop_reason_type IS NOT NULL THEN 1 ELSE 0 END) AS num_contract_drops
+        -- MAX(contracted_power_control) AS current_contracted_power,
+        -- COUNT(DISTINCT cod_modification_type) AS num_distinct_mod_types,
+        COUNT(DISTINCT cod_contract) AS num_contracts,
+        -- SUM(CASE WHEN cod_drop_reason_type IS NOT NULL THEN 1 ELSE 0 END) AS num_contract_drops
     FROM archived_zele.gccon_contracted_service
     GROUP BY cups
 )
@@ -20,10 +20,10 @@ SELECT
     last_bill_date,
     last_modification_date,
     last_contract_initial_date,
-    current_contracted_power,
+    -- current_contracted_power,
     num_contracts,
-    num_distinct_mod_types,
-    num_contract_drops,
+    -- num_distinct_mod_types,
+    -- num_contract_drops,
  
     -- Variables derivadas temporales
     date_diff('day', last_modification_date, current_date) AS days_since_last_modification,
